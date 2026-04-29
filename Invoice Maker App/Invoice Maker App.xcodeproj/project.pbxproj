@@ -7,19 +7,19 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		18F6BC4F2FA10DDD005D7A91 /* Invoice Maker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Invoice Maker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		18688CD92FA27C4E000B7E36 /* Invoice Maker App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Invoice Maker App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		18F6BC512FA10DDD005D7A91 /* Invoice Maker */ = {
+		18688CDB2FA27C4E000B7E36 /* Invoice Maker App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Invoice Maker";
+			path = "Invoice Maker App";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		18F6BC4C2FA10DDD005D7A91 /* Frameworks */ = {
+		18688CD62FA27C4E000B7E36 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -29,18 +29,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		18F6BC462FA10DDD005D7A91 = {
+		18688CD02FA27C4E000B7E36 = {
 			isa = PBXGroup;
 			children = (
-				18F6BC512FA10DDD005D7A91 /* Invoice Maker */,
-				18F6BC502FA10DDD005D7A91 /* Products */,
+				18688CDB2FA27C4E000B7E36 /* Invoice Maker App */,
+				18688CDA2FA27C4E000B7E36 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		18F6BC502FA10DDD005D7A91 /* Products */ = {
+		18688CDA2FA27C4E000B7E36 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				18F6BC4F2FA10DDD005D7A91 /* Invoice Maker.app */,
+				18688CD92FA27C4E000B7E36 /* Invoice Maker App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,64 +48,64 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		18F6BC4E2FA10DDD005D7A91 /* Invoice Maker */ = {
+		18688CD82FA27C4E000B7E36 /* Invoice Maker App */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 18F6BC5D2FA10DDE005D7A91 /* Build configuration list for PBXNativeTarget "Invoice Maker" */;
+			buildConfigurationList = 18688CE72FA27C4F000B7E36 /* Build configuration list for PBXNativeTarget "Invoice Maker App" */;
 			buildPhases = (
-				18F6BC4B2FA10DDD005D7A91 /* Sources */,
-				18F6BC4C2FA10DDD005D7A91 /* Frameworks */,
-				18F6BC4D2FA10DDD005D7A91 /* Resources */,
+				18688CD52FA27C4E000B7E36 /* Sources */,
+				18688CD62FA27C4E000B7E36 /* Frameworks */,
+				18688CD72FA27C4E000B7E36 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				18F6BC512FA10DDD005D7A91 /* Invoice Maker */,
+				18688CDB2FA27C4E000B7E36 /* Invoice Maker App */,
 			);
-			name = "Invoice Maker";
+			name = "Invoice Maker App";
 			packageProductDependencies = (
 			);
-			productName = "Invoice Maker";
-			productReference = 18F6BC4F2FA10DDD005D7A91 /* Invoice Maker.app */;
+			productName = "Invoice Maker App";
+			productReference = 18688CD92FA27C4E000B7E36 /* Invoice Maker App.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		18F6BC472FA10DDD005D7A91 /* Project object */ = {
+		18688CD12FA27C4E000B7E36 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
-					18F6BC4E2FA10DDD005D7A91 = {
+					18688CD82FA27C4E000B7E36 = {
 						CreatedOnToolsVersion = 26.4.1;
 					};
 				};
 			};
-			buildConfigurationList = 18F6BC4A2FA10DDD005D7A91 /* Build configuration list for PBXProject "Invoice Maker" */;
+			buildConfigurationList = 18688CD42FA27C4E000B7E36 /* Build configuration list for PBXProject "Invoice Maker App" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 18F6BC462FA10DDD005D7A91;
+			mainGroup = 18688CD02FA27C4E000B7E36;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 18F6BC502FA10DDD005D7A91 /* Products */;
+			productRefGroup = 18688CDA2FA27C4E000B7E36 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				18F6BC4E2FA10DDD005D7A91 /* Invoice Maker */,
+				18688CD82FA27C4E000B7E36 /* Invoice Maker App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		18F6BC4D2FA10DDD005D7A91 /* Resources */ = {
+		18688CD72FA27C4E000B7E36 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -115,7 +115,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		18F6BC4B2FA10DDD005D7A91 /* Sources */ = {
+		18688CD52FA27C4E000B7E36 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -125,7 +125,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		18F6BC5B2FA10DDE005D7A91 /* Debug */ = {
+		18688CE52FA27C4F000B7E36 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -188,7 +188,7 @@
 			};
 			name = Debug;
 		};
-		18F6BC5C2FA10DDE005D7A91 /* Release */ = {
+		18688CE62FA27C4F000B7E36 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -243,7 +243,7 @@
 			};
 			name = Release;
 		};
-		18F6BC5E2FA10DDE005D7A91 /* Debug */ = {
+		18688CE82FA27C4F000B7E36 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -262,7 +262,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "ahmad.FirstTrail.Invoice-Maker";
+				PRODUCT_BUNDLE_IDENTIFIER = "ahmad.FirstTrail.Invoice-Maker-App";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -274,7 +274,7 @@
 			};
 			name = Debug;
 		};
-		18F6BC5F2FA10DDE005D7A91 /* Release */ = {
+		18688CE92FA27C4F000B7E36 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -293,7 +293,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "ahmad.FirstTrail.Invoice-Maker";
+				PRODUCT_BUNDLE_IDENTIFIER = "ahmad.FirstTrail.Invoice-Maker-App";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -308,25 +308,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		18F6BC4A2FA10DDD005D7A91 /* Build configuration list for PBXProject "Invoice Maker" */ = {
+		18688CD42FA27C4E000B7E36 /* Build configuration list for PBXProject "Invoice Maker App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				18F6BC5B2FA10DDE005D7A91 /* Debug */,
-				18F6BC5C2FA10DDE005D7A91 /* Release */,
+				18688CE52FA27C4F000B7E36 /* Debug */,
+				18688CE62FA27C4F000B7E36 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		18F6BC5D2FA10DDE005D7A91 /* Build configuration list for PBXNativeTarget "Invoice Maker" */ = {
+		18688CE72FA27C4F000B7E36 /* Build configuration list for PBXNativeTarget "Invoice Maker App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				18F6BC5E2FA10DDE005D7A91 /* Debug */,
-				18F6BC5F2FA10DDE005D7A91 /* Release */,
+				18688CE82FA27C4F000B7E36 /* Debug */,
+				18688CE92FA27C4F000B7E36 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 18F6BC472FA10DDD005D7A91 /* Project object */;
+	rootObject = 18688CD12FA27C4E000B7E36 /* Project object */;
 }
