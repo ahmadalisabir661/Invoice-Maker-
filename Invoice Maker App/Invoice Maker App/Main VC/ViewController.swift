@@ -10,6 +10,7 @@ import Cocoa
 class ViewController: NSViewController, NSWindowDelegate {
 
     var sideBarView = Sidebar()
+    var invoiceView = InvoiceView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,10 +65,24 @@ class ViewController: NSViewController, NSWindowDelegate {
             sideBarView.topAnchor.constraint(equalTo: self.view.topAnchor),
             sideBarView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             sideBarView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
-            sideBarView.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.25)
+            sideBarView.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.23)
         ])
         
         // ------------------------------
+        
+        invoiceView.wantsLayer = true
+        invoiceView.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(invoiceView)
+        
+        NSLayoutConstraint.activate([
+            invoiceView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            invoiceView.leadingAnchor.constraint(equalTo: sideBarView.trailingAnchor),
+            invoiceView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            invoiceView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+        ])
+        
+        // ------------------------------
+
     }
     
 }
