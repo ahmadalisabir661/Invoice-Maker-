@@ -12,14 +12,30 @@ struct SidebarItemModel {
     let titleText : String
 }
 
+enum SidebarItem {
+    case dashboard
+    case invoiceBill
+    case clientVendor
+    case payments
+    case reports
+    case settings
+}
+
+protocol SidebarDelegate : AnyObject {
+    func sidebartapped(_ item: SidebarItem)
+}
+
 class Sidebar: NSView {
+    
+    weak var delegate: SidebarDelegate?
     
     var titleText : NSTextField!
     var itemsCV = NSCollectionView()
     
     var itemsCVList : [SidebarItemModel] = [
         SidebarItemModel(image: .dashboardIcon, titleText: "Dashboard"),
-        SidebarItemModel(image: .invoiceIcon, titleText: "Invoices"),
+        SidebarItemModel(image: .invoiceIcon, titleText: "Create Invoice"),
+        SidebarItemModel(image: .invoiceIcon, titleText: "Create Bill"),
         SidebarItemModel(image: .clientsIcon, titleText: "Clients/Vendors"),
         SidebarItemModel(image: .paymentIcon, titleText: "Payments"),
         SidebarItemModel(image: .reportsIcon, titleText: "Reports"),
@@ -97,6 +113,29 @@ extension Sidebar: NSCollectionViewDataSource, NSCollectionViewDelegate, NSColle
     func collectionView(_ collectionView: NSCollectionView, layout collectionViewLayout: NSCollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> NSSize {
         
         return NSSize(width: collectionView.frame.size.width, height: 65)
+    }
+    
+    func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
+        guard let indexPath = indexPaths.first else { return }
+        
+        switch indexPath.item {
+        case 0:
+            print("")
+        case 1:
+            delegate?.sidebartapped(.invoiceBill)
+        case 2:
+            print("")
+        case 3:
+            print("")
+        case 4:
+            print("")
+        case 5:
+            print("")
+        case 6:
+            print("")
+        default:
+            print("")
+        }
     }
     
 }

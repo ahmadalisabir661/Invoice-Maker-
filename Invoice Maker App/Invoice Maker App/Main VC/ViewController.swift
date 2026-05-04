@@ -14,6 +14,9 @@ class ViewController: NSViewController, NSWindowDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        sideBarView.delegate = self
+        
         setup()
     }
 
@@ -87,3 +90,24 @@ class ViewController: NSViewController, NSWindowDelegate {
     
 }
 
+// delegates
+extension ViewController: SidebarDelegate {
+    
+    func sidebartapped(_ item: SidebarItem) {
+        switch item {
+        case .dashboard:
+            print("")
+        case .invoiceBill:
+            print("")
+        case .clientVendor:
+            print("")
+        case .payments:
+            print("")
+        case .reports:
+            print("")
+        case .settings:
+            print("")
+        }
+    }
+    
+}
