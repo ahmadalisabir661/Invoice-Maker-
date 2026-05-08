@@ -27,7 +27,7 @@ class InvoiceItemCVCell : NSCollectionViewItem {
     func setup() {
         
         descView.wantsLayer = true
-        descView.layer?.backgroundColor = NSColor.red.withAlphaComponent(0.3).cgColor
+//        descView.layer?.backgroundColor = NSColor.red.withAlphaComponent(0.3).cgColor
         descView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(descView)
         
@@ -74,7 +74,7 @@ class InvoiceItemCVCell : NSCollectionViewItem {
         qtyLabel.titleText.font = .systemFont(ofSize: 14, weight: .regular)
         qtyLabel.titleText.alignment = .center
         qtyLabel.wantsLayer = true
-        qtyLabel.layer?.backgroundColor = NSColor.yellow.withAlphaComponent(0.3).cgColor
+//        qtyLabel.layer?.backgroundColor = NSColor.yellow.withAlphaComponent(0.3).cgColor
         qtyLabel.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(qtyLabel)
         
@@ -91,7 +91,7 @@ class InvoiceItemCVCell : NSCollectionViewItem {
         rateLabel.titleText.font = .systemFont(ofSize: 14, weight: .regular)
         rateLabel.titleText.alignment = .right
         rateLabel.wantsLayer = true
-        rateLabel.layer?.backgroundColor = NSColor.red.withAlphaComponent(0.3).cgColor
+//        rateLabel.layer?.backgroundColor = NSColor.red.withAlphaComponent(0.3).cgColor
         rateLabel.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(rateLabel)
         
@@ -108,7 +108,7 @@ class InvoiceItemCVCell : NSCollectionViewItem {
         amountLabel.titleText.font = .systemFont(ofSize: 14, weight: .regular)
         amountLabel.titleText.alignment = .right
         amountLabel.wantsLayer = true
-        amountLabel.layer?.backgroundColor = NSColor.yellow.withAlphaComponent(0.3).cgColor
+//        amountLabel.layer?.backgroundColor = NSColor.yellow.withAlphaComponent(0.3).cgColor
         amountLabel.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(amountLabel)
         

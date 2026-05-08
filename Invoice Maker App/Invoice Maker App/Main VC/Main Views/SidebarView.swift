@@ -16,6 +16,7 @@ enum SidebarItem {
     case dashboard
     case invoiceBill
     case clientVendor
+    case items
     case payments
     case reports
     case settings
@@ -25,7 +26,7 @@ protocol SidebarDelegate : AnyObject {
     func sidebartapped(_ item: SidebarItem)
 }
 
-class Sidebar: NSView {
+class SidebarView : NSView {
     
     weak var delegate: SidebarDelegate?
     
@@ -34,9 +35,9 @@ class Sidebar: NSView {
     
     var itemsCVList : [SidebarItemModel] = [
         SidebarItemModel(image: .dashboardIcon, titleText: "Dashboard"),
-        SidebarItemModel(image: .invoiceIcon, titleText: "Create Invoice"),
-        SidebarItemModel(image: .invoiceIcon, titleText: "Create Bill"),
+        SidebarItemModel(image: .invoiceIcon, titleText: "Invoice/Bill"),
         SidebarItemModel(image: .clientsIcon, titleText: "Clients/Vendors"),
+        SidebarItemModel(image: .invoiceIcon, titleText: "Items"),
         SidebarItemModel(image: .paymentIcon, titleText: "Payments"),
         SidebarItemModel(image: .reportsIcon, titleText: "Reports"),
         SidebarItemModel(image: .settingsIcon, titleText: "Settings"),
@@ -92,7 +93,7 @@ class Sidebar: NSView {
     
 }
 
-extension Sidebar: NSCollectionViewDataSource, NSCollectionViewDelegate, NSCollectionViewDelegateFlowLayout {
+extension SidebarView: NSCollectionViewDataSource, NSCollectionViewDelegate, NSCollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
         return itemsCVList.count
@@ -127,6 +128,7 @@ extension Sidebar: NSCollectionViewDataSource, NSCollectionViewDelegate, NSColle
             print("")
         case 3:
             print("")
+            delegate?.sidebartapped(.items)
         case 4:
             print("")
         case 5:
