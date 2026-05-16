@@ -9,9 +9,9 @@ import Cocoa
 
 class ViewController: NSViewController, NSWindowDelegate {
 
+    var saveBtn : NSTextField!
     var sideBarView = SidebarView()
     var invoiceView = InvoiceView()
-    var itemView = ItemsView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -89,20 +89,25 @@ class ViewController: NSViewController, NSWindowDelegate {
         
         // ------------------------------
         
-        itemView.wantsLayer = true
-        itemView.isHidden = true
-        itemView.translatesAutoresizingMaskIntoConstraints = false
-        self.view.addSubview(itemView)
+        saveBtn = NSTextField(labelWithString: "Save")
+        saveBtn.font = .systemFont(ofSize: 20, weight: .medium)
+        saveBtn.textColor = .white
+        self.view.addSubview(saveBtn)
         
-        NSLayoutConstraint.activate([
-            itemView.topAnchor.constraint(equalTo: self.view.topAnchor),
-            itemView.leadingAnchor.constraint(equalTo: sideBarView.trailingAnchor),
-            itemView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
-            itemView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-        ])
+        saveBtn.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(saveTapped)))
+        
+        saveBtn.anchor(top: self.view.safeAreaLayoutGuide.topAnchor, paddingTop: 10, bottom: nil, paddingBottom: 0, left: nil, paddingLeft: 0, right: invoiceView.mainView.trailingAnchor, paddingRight: 20, width: 0, height: 0)
         
         // ------------------------------
 
+    }
+    
+}
+
+extension ViewController {
+    
+    @objc func saveTapped() {
+        invoiceView.saveTapped()
     }
     
 }
@@ -117,12 +122,10 @@ extension ViewController: SidebarDelegate {
             print("")
         case .invoiceBill:
             invoiceView.isHidden = false
-            itemView.isHidden = true
         case .clientVendor:
             print("")
         case .items:
             invoiceView.isHidden = true
-            itemView.isHidden = false
         case .payments:
             print("")
         case .reports:

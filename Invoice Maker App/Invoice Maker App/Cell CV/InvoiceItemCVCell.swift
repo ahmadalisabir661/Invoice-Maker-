@@ -10,6 +10,7 @@ import Cocoa
 
 protocol InvoiceItemCVCellDelegate : AnyObject {
     func minusTapped(index: Int)
+    func amoutUpdated(index: Int, amount: AmountModel)
 }
 
 class InvoiceItemCVCell : NSCollectionViewItem {
@@ -24,7 +25,7 @@ class InvoiceItemCVCell : NSCollectionViewItem {
     var descCoLabel : NSTextField!
     var qtyLabel = NSTextField()
     var rateLabel = NSTextField()
-    var amountLabel = BtnView()
+    var amountLabel = NSTextField()
     var minusIcon = CustomPlusView()
 
     var currentIndex = 0
@@ -124,6 +125,7 @@ class InvoiceItemCVCell : NSCollectionViewItem {
         // ----------------------------------
         
         qtyLabel.placeholderString = "0"
+        qtyLabel.delegate = self
         qtyLabel.font = .systemFont(ofSize: 14, weight: .regular)
         qtyLabel.textColor = .white
         qtyLabel.backgroundColor = .clear
@@ -140,11 +142,13 @@ class InvoiceItemCVCell : NSCollectionViewItem {
             qtyLabel.heightAnchor.constraint(equalToConstant: 17),
             qtyLabel.leadingAnchor.constraint(equalTo: descView.trailingAnchor),
             qtyLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.18),
+//            qtyLabel.widthAnchor.constraint(equalToConstant: 200)
         ])
         
         // ----------------------------------
         
         rateLabel.placeholderString = "0"
+        rateLabel.delegate = self
         rateLabel.font = .systemFont(ofSize: 14, weight: .regular)
         rateLabel.textColor = .white
         rateLabel.backgroundColor = .clear
@@ -161,31 +165,136 @@ class InvoiceItemCVCell : NSCollectionViewItem {
             rateLabel.heightAnchor.constraint(equalToConstant: 17),
             rateLabel.leadingAnchor.constraint(equalTo: qtyLabel.trailingAnchor),
             rateLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.18),
+//            rateLabel.widthAnchor.constraint(equalToConstant: 200)
         ])
         
         // ----------------------------------
         
-        amountLabel.titleText.stringValue = "0"
-        amountLabel.titleText.font = .systemFont(ofSize: 14, weight: .regular)
-        amountLabel.titleText.alignment = .right
-        amountLabel.wantsLayer = true
-//        amountLabel.layer?.backgroundColor = NSColor.primaryNavy.withAlphaComponent(0.1).cgColor
+        amountLabel.placeholderString = "0"
+        amountLabel.delegate = self
+        amountLabel.font = .systemFont(ofSize: 14, weight: .regular)
+        amountLabel.textColor = .white
+        amountLabel.backgroundColor = .clear
+        amountLabel.isBezeled = false
+        amountLabel.isBordered = false
+        amountLabel.focusRingType = .none
+        amountLabel.lineBreakMode = .byTruncatingTail
+        amountLabel.alignment = .right
         amountLabel.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(amountLabel)
         
         NSLayoutConstraint.activate([
-            amountLabel.topAnchor.constraint(equalTo: self.view.topAnchor),
-            amountLabel.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            amountLabel.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
+            amountLabel.heightAnchor.constraint(equalToConstant: 17),
             amountLabel.leadingAnchor.constraint(equalTo: rateLabel.trailingAnchor),
-            amountLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.18),
+            //            amountLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.18),
+            amountLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+
         ])
         
         // ----------------------------------
         
     }
     
+}
+
+extension InvoiceItemCVCell {
+    
     @objc func minusTapped() {
         delegate?.minusTapped(index: currentIndex)
+    }
+    
+}
+
+extension InvoiceItemCVCell : NSTextFieldDelegate {
+    
+    // ─── NSTextFieldDelegate Observers ───────────────────────────────
+    
+    func controlTextDidChange(_ obj: Notification) {
+        guard let field = obj.object as? NSTextField else { return }
+        
+        if field == qtyLabel {
+            if field.stringValue.count > 8 {
+                field.stringValue = String(field.stringValue.prefix(8))
+            }
+        } else if field == rateLabel {
+            if field.stringValue.count > 12 {
+                field.stringValue = String(field.stringValue.prefix(12))
+            }
+        }
+    }
+    
+    func controlTextDidEndEditing(_ obj: Notification) {
+        guard let field = obj.object as? NSTextField else { return }
+        
+        let value = field.stringValue
+        
+        if field == qtyLabel {
+            if value.isEmpty { return }
+            
+            // Only digits allowed for qty
+            let isOnlyNumbers = value.unicodeScalars.allSatisfy { CharacterSet.decimalDigits.contains($0) }
+            
+            if !isOnlyNumbers {
+                field.stringValue = ""
+                return
+            }
+            
+            // Auto calculate if rate also has value
+            calculateTotal()
+        }
+        
+        else if field == rateLabel {
+            if value.isEmpty { return }
+            
+            // Digits + decimal allowed for rate
+            let allowedCharacters = CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "."))
+            let isValidDecimal = value.unicodeScalars.allSatisfy { allowedCharacters.contains($0) }
+            let dotCount = value.filter { $0 == "." }.count
+
+            guard isValidDecimal && dotCount <= 1 && Double(value) != nil else {
+                field.stringValue = ""
+                return
+            }
+            
+            // Auto calculate if qty also has value
+            calculateTotal()
+        }
+    }
+
+    // ─── Calculate & print total ──────────────────────────────────────────
+
+    private func calculateTotal() {
+
+        guard !qtyLabel.stringValue.isEmpty,
+              !rateLabel.stringValue.isEmpty else { return }
+
+        guard let qty = Double(qtyLabel.stringValue),
+              let rate = Double(rateLabel.stringValue) else { return }
+
+        let total = qty * rate
+
+        let formatted: String
+
+        if total.truncatingRemainder(dividingBy: 1) == 0 {
+            formatted = String(format: "%.0f", total)
+        } else {
+            formatted = String(format: "%.2f", total)
+        }
+
+        print("Qty: \(qty) × Rate: \(rate) = Total: \(formatted)")
+
+        DispatchQueue.main.async {
+            self.amountLabel.stringValue = formatted
+        }
+
+        let item = AmountModel(
+            qty: "\(qty)",
+            price: "\(rate)",
+            amount: formatted
+        )
+
+        delegate?.amoutUpdated(index: currentIndex, amount: item)
     }
     
 }
