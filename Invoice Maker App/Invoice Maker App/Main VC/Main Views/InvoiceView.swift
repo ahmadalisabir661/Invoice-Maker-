@@ -10,6 +10,7 @@ import Cocoa
  import UniformTypeIdentifiers
 
 struct AmountModel {
+    let text: String
     let qty : String
     let price : String
     let amount : String
@@ -75,7 +76,7 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
     let notesTextView = NSTextView()
 
     var invoiceItemCVList : [AmountModel] = [
-        AmountModel(qty: "", price: "", amount: "")
+        AmountModel(text: "", qty: "", price: "", amount: "")
     ]
     
     override init(frame frameRect: NSRect) {
@@ -95,9 +96,8 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         collectionViewSection()
         footerSection()
     }
-    
-    func setupScrollView() {
         
+    func setupScrollView() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
@@ -105,7 +105,6 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         self.addSubview(scrollView)
 
         NSLayoutConstraint.activate([
-//            scrollView.topAnchor.constraint(equalTo: self.topAnchor),
             scrollView.topAnchor.constraint(equalTo: self.topAnchor, constant: 30),
             scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
@@ -120,24 +119,24 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
             contentView.leadingAnchor.constraint(equalTo: scrollView.contentView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.contentView.trailingAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.contentView.widthAnchor),
+            contentView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.contentView.heightAnchor),
         ])
-       
     }
     
     func headerSection() {
         
         mainView.wantsLayer = true
-        mainView.layer?.borderColor = NSColor.white.withAlphaComponent(0.5).cgColor
-        mainView.layer?.borderWidth = 1
+        mainView.layer?.borderColor = NSColor.blueBorder.cgColor
+        mainView.layer?.borderWidth = 1.5
         mainView.layer?.cornerRadius = 20
         mainView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(mainView)
         
         NSLayoutConstraint.activate([
             mainView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            mainView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            mainView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20), // ← stays at top
             mainView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
-            mainView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
+            mainView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.9),
         ])
         
         // ----------------------------------
@@ -640,7 +639,10 @@ extension InvoiceView : InvoiceItemCVCellDelegate {
     @objc func addNewItem() {
         let oldConstant = itemScrollViewConstraint.constant
         itemScrollViewConstraint.constant = oldConstant + 60
-        invoiceItemCVList.append(AmountModel(qty: "", price: "", amount: ""))
+        for invoice in invoiceItemCVList {
+            print("that will qty: \(invoice.qty), price: \(invoice.price), amount: \(invoice.amount)")
+        }
+        invoiceItemCVList.append(AmountModel(text: "", qty: "", price: "", amount: ""))
         
         DispatchQueue.main.async {
             self.invoiceItemCV.reloadData()
@@ -700,6 +702,19 @@ extension InvoiceView : InvoiceItemCVCellDelegate {
         }
     }
     
+    func textViewUpdated(index: Int, text: String) {
+        guard invoiceItemCVList.indices.contains(index) else { return }
+
+        for (i, item) in invoiceItemCVList.enumerated() {
+            if i == index {
+                let newItem = AmountModel(text: text, qty: item.qty, price: item.price, amount: item.amount)
+                invoiceItemCVList[i] = newItem
+                break
+            }
+        }
+        
+    }
+    
     func controlTextDidChange(_ obj: Notification) {
         guard let field = obj.object as? NSTextField else { return }
         
@@ -741,6 +756,7 @@ extension InvoiceView: NSCollectionViewDataSource, NSCollectionViewDelegate, NSC
         cell.delegate = self
 
         // IMPORTANT
+        cell.textView.string = item.text
         cell.qtyLabel.stringValue = item.qty
         cell.rateLabel.stringValue = item.price
         cell.amountLabel.stringValue = item.amount.isEmpty ? "0" : item.amount
@@ -749,7 +765,6 @@ extension InvoiceView: NSCollectionViewDataSource, NSCollectionViewDelegate, NSC
     }
     
     func collectionView(_ collectionView: NSCollectionView, layout collectionViewLayout: NSCollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> NSSize {
-        
         return NSSize(width: collectionView.frame.size.width, height: 60)
     }
     

@@ -15,6 +15,8 @@ class ViewController: NSViewController, NSWindowDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.wantsLayer = true
+        self.view.layer?.backgroundColor = NSColor.mainBG.cgColor
         
         sideBarView.delegate = self
         
@@ -75,12 +77,29 @@ class ViewController: NSViewController, NSWindowDelegate {
         
         // ------------------------------
         
+        let topBar = TopBarView()
+        topBar.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(topBar)
+
+        NSLayoutConstraint.activate([
+            topBar.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
+            topBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            topBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            topBar.heightAnchor.constraint(equalToConstant: 70)
+        ])
+
+        // Hook up button actions
+        topBar.saveButton.target = self
+        topBar.saveButton.action = #selector(saveTapped)
+        
+        // ------------------------------
+        
         invoiceView.wantsLayer = true
         invoiceView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(invoiceView)
         
         NSLayoutConstraint.activate([
-            invoiceView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            invoiceView.topAnchor.constraint(equalTo: topBar.bottomAnchor),
 //            invoiceView.leadingAnchor.constraint(equalTo: sideBarView.trailingAnchor),
             invoiceView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             invoiceView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
@@ -89,15 +108,15 @@ class ViewController: NSViewController, NSWindowDelegate {
         
         // ------------------------------
         
-        saveBtn = NSTextField(labelWithString: "Save")
-        saveBtn.font = .systemFont(ofSize: 20, weight: .medium)
-        saveBtn.textColor = .white
-        self.view.addSubview(saveBtn)
-        
-        saveBtn.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(saveTapped)))
-        
-        saveBtn.anchor(top: self.view.safeAreaLayoutGuide.topAnchor, paddingTop: 10, bottom: nil, paddingBottom: 0, left: nil, paddingLeft: 0, right: invoiceView.mainView.trailingAnchor, paddingRight: 20, width: 0, height: 0)
-        
+//        saveBtn = NSTextField(labelWithString: "Save")
+//        saveBtn.font = .systemFont(ofSize: 20, weight: .medium)
+//        saveBtn.textColor = .white
+//        self.view.addSubview(saveBtn)
+//        
+//        saveBtn.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(saveTapped)))
+//        
+//        saveBtn.anchor(top: self.view.safeAreaLayoutGuide.topAnchor, paddingTop: 10, bottom: nil, paddingBottom: 0, left: nil, paddingLeft: 0, right: invoiceView.mainView.trailingAnchor, paddingRight: 20, width: 0, height: 0)
+//        
         // ------------------------------
 
     }

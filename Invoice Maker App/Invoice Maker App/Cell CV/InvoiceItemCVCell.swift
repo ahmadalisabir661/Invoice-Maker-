@@ -11,9 +11,10 @@ import Cocoa
 protocol InvoiceItemCVCellDelegate : AnyObject {
     func minusTapped(index: Int)
     func amoutUpdated(index: Int, amount: AmountModel)
+    func textViewUpdated(index: Int, text: String)
 }
 
-class InvoiceItemCVCell : NSCollectionViewItem {
+class InvoiceItemCVCell : NSCollectionViewItem, NSTextViewDelegate {
     
     weak var delegate : InvoiceItemCVCellDelegate?
     static let identifier = NSUserInterfaceItemIdentifier("InvoiceItemCVCell")
@@ -28,6 +29,9 @@ class InvoiceItemCVCell : NSCollectionViewItem {
     var amountLabel = NSTextField()
     var minusIcon = CustomPlusView()
 
+    var scrollView : NSScrollView!
+    var textView : NSTextView!
+    
     var currentIndex = 0
     
     override func viewDidLoad() {
@@ -73,7 +77,7 @@ class InvoiceItemCVCell : NSCollectionViewItem {
         let frame = CGRect(x: 20, y: 20, width: 500, height: 300)
 
         // 2. Create NSScrollView
-        let scrollView = NSScrollView(frame: frame)
+        scrollView = NSScrollView(frame: frame)
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
         scrollView.autohidesScrollers = true
@@ -83,7 +87,7 @@ class InvoiceItemCVCell : NSCollectionViewItem {
 
         // 3. Create NSTextView sized to scroll view's content area
         let contentSize = scrollView.contentSize
-        let textView = NSTextView(frame: CGRect(origin: .zero, size: contentSize))
+        textView = NSTextView(frame: CGRect(origin: .zero, size: contentSize))
         textView.minSize = NSSize(width: 0, height: contentSize.height)
         textView.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude,
                                   height: CGFloat.greatestFiniteMagnitude)
@@ -97,6 +101,7 @@ class InvoiceItemCVCell : NSCollectionViewItem {
             height: CGFloat.greatestFiniteMagnitude
         )
         textView.textContainer?.widthTracksTextView = true
+        textView.delegate = self
         textView.isEditable = true
         textView.isSelectable = true
         textView.allowsUndo = true
@@ -262,6 +267,22 @@ extension InvoiceItemCVCell : NSTextFieldDelegate {
         }
     }
 
+//    func textDidChange(_ notification: Notification) {
+//        
+//        guard let textView = notification.object as? NSTextView else { return }
+//        
+//        delegate?.textViewUpdated(index: currentIndex, text: textView.string)
+//        print(textView.string)
+//    }
+    
+    func textDidEndEditing(_ notification: Notification) {
+        guard let textView = notification.object as? NSTextView else { return }
+        
+        delegate?.textViewUpdated(index: currentIndex, text: textView.string)
+        print(textView.string)
+        calculateTotal()
+    }
+    
     // ─── Calculate & print total ──────────────────────────────────────────
 
     private func calculateTotal() {
@@ -289,6 +310,7 @@ extension InvoiceItemCVCell : NSTextFieldDelegate {
         }
 
         let item = AmountModel(
+            text: textView.string,
             qty: "\(qty)",
             price: "\(rate)",
             amount: formatted
