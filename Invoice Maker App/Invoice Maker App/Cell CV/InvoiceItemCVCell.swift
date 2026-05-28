@@ -267,14 +267,6 @@ extension InvoiceItemCVCell : NSTextFieldDelegate {
         }
     }
 
-//    func textDidChange(_ notification: Notification) {
-//        
-//        guard let textView = notification.object as? NSTextView else { return }
-//        
-//        delegate?.textViewUpdated(index: currentIndex, text: textView.string)
-//        print(textView.string)
-//    }
-    
     func textDidEndEditing(_ notification: Notification) {
         guard let textView = notification.object as? NSTextView else { return }
         

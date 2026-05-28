@@ -10,6 +10,8 @@ import Cocoa
 class ViewController: NSViewController, NSWindowDelegate {
 
     var saveBtn : NSTextField!
+    
+    let topBar = TopBarView()
     var sideBarView = SidebarView()
     var invoiceView = InvoiceView()
     
@@ -61,6 +63,11 @@ class ViewController: NSViewController, NSWindowDelegate {
         
     }
     
+    override func viewDidAppear() {
+        super.viewDidAppear()
+        view.window?.makeFirstResponder(nil)
+    }
+    
     func setup() {
         
         sideBarView.wantsLayer = true
@@ -77,7 +84,6 @@ class ViewController: NSViewController, NSWindowDelegate {
         
         // ------------------------------
         
-        let topBar = TopBarView()
         topBar.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(topBar)
 
@@ -107,18 +113,6 @@ class ViewController: NSViewController, NSWindowDelegate {
         ])
         
         // ------------------------------
-        
-//        saveBtn = NSTextField(labelWithString: "Save")
-//        saveBtn.font = .systemFont(ofSize: 20, weight: .medium)
-//        saveBtn.textColor = .white
-//        self.view.addSubview(saveBtn)
-//        
-//        saveBtn.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(saveTapped)))
-//        
-//        saveBtn.anchor(top: self.view.safeAreaLayoutGuide.topAnchor, paddingTop: 10, bottom: nil, paddingBottom: 0, left: nil, paddingLeft: 0, right: invoiceView.mainView.trailingAnchor, paddingRight: 20, width: 0, height: 0)
-//        
-        // ------------------------------
-
     }
     
 }

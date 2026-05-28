@@ -26,7 +26,7 @@ class CustomPlusView : NSView {
         
         imageView.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)
         imageView.imageScaling = .scaleProportionallyUpOrDown
-        imageView.contentTintColor = .primaryNavy
+        imageView.contentTintColor = .mainBG
         self.addSubview(imageView)
         
         imageView.anchor(top: nil, paddingTop: 0, bottom: nil, paddingBottom: 0, left: nil, paddingLeft: 0, right: nil, paddingRight: 0, width: 12, height: 12)

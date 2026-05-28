@@ -55,7 +55,7 @@ class SidebarView : NSView {
     
     private func setup() {
         wantsLayer = true
-        layer?.backgroundColor = NSColor.primaryNavy.cgColor
+//        layer?.backgroundColor = NSColor.primaryNavy.cgColor
         
         titleText = NSTextField(labelWithString: "Invoice Maker")
         titleText.font = .systemFont(ofSize: 30, weight: .medium)

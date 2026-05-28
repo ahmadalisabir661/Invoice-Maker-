@@ -75,6 +75,16 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
     var itemScrollViewConstraint : NSLayoutConstraint!
     let notesTextView = NSTextView()
 
+    // Properties
+    var datePopover: NSPopover?
+    var datePicker: NSDatePicker?
+    
+    var invoicePickedDate : Date?
+    var duePickedDate : Date?
+    
+    let countryCV = NSCollectionView()
+    let countrySV = NSScrollView()
+
     var invoiceItemCVList : [AmountModel] = [
         AmountModel(text: "", qty: "", price: "", amount: "")
     ]
@@ -126,6 +136,7 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
     func headerSection() {
         
         mainView.wantsLayer = true
+        mainView.layer?.backgroundColor = NSColor.secondaryBlue.cgColor
         mainView.layer?.borderColor = NSColor.blueBorder.cgColor
         mainView.layer?.borderWidth = 1.5
         mainView.layer?.cornerRadius = 20
@@ -160,7 +171,9 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
                 
         // ----------------------------------
         
-        invoiceNumberField.placeholderString = "Click to Enter"
+        let year = Calendar.current.component(.year, from: Date())
+        var invoiceNumber = "INV-\(year)-0001"
+        invoiceNumberField.stringValue = invoiceNumber
         invoiceNumberField.font = .systemFont(ofSize: 16, weight: .regular)
         invoiceNumberField.textColor = .white
         invoiceNumberField.backgroundColor = .clear
@@ -189,6 +202,8 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         invoiceDate.textColor = .white
         contentView.addSubview(invoiceDate)
         
+        invoiceDate.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(invoiceDateClicked(_:))))
+        
         invoiceDate.anchor(top: nil, paddingTop: 0, bottom: nil, paddingBottom: 0, left: invoiceNumberField.leadingAnchor, paddingLeft: 0, right: nil, paddingRight: 0, width: 0, height: 0)
         invoiceDate.center(centerX: nil, centerY: invoiceDateLabel.centerYAnchor)
         
@@ -207,6 +222,8 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         dueDate.font = .systemFont(ofSize: 16, weight: .regular)
         dueDate.textColor = .white
         contentView.addSubview(dueDate)
+        
+        dueDate.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(dueDateClicked(_:))))
         
         dueDate.anchor(top: nil, paddingTop: 0, bottom: nil, paddingBottom: 0, left: invoiceNumberField.leadingAnchor, paddingLeft: 0, right: nil, paddingRight: 0, width: 0, height: 0)
         dueDate.center(centerX: nil, centerY: dueDateLabel.centerYAnchor)
@@ -273,6 +290,8 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         yourCountryLabel.font = .systemFont(ofSize: 16, weight: .regular)
         yourCountryLabel.textColor = .white
         contentView.addSubview(yourCountryLabel)
+        
+        yourCountryLabel.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(countryPopoverClicked(_:))))
         
         yourCountryLabel.anchor(top: yourCityStateField.bottomAnchor, paddingTop: 15, bottom: nil, paddingBottom: 0, left: yourCityStateField.leadingAnchor, paddingLeft: 0, right: nil, paddingRight: 0, width: 0, height: 0)
         
@@ -367,6 +386,13 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         partition_1.anchor(top: yourCountryLabel.bottomAnchor, paddingTop: 30, bottom: nil, paddingBottom: 0, left: mainView.leadingAnchor, paddingLeft: 20, right: mainView.trailingAnchor, paddingRight: 20, width: 0, height: 0.5)
         
         // ----------------------------------
+        
+        invoicePickedDate = Date()
+        duePickedDate = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+        invoiceDate.stringValue = formatter.string(from: Date())
+        dueDate.stringValue = formatter.string(from: Calendar.current.date(byAdding: .day, value: 1, to: Date())!)
     }
     
     func collectionViewSection() {
@@ -576,7 +602,7 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         
         // ----------------------------------
         
-        totalAmout.titleText.stringValue = "$82939.22"
+        totalAmout.titleText.stringValue = "0"
         totalAmout.titleText.font = .systemFont(ofSize: 18, weight: .regular)
         totalAmout.titleText.textColor = .textBlue
         totalAmout.wantsLayer = true
@@ -620,7 +646,9 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         notesTextView.font = .systemFont(ofSize: 14, weight: .regular)
         notesTextView.drawsBackground = false
         notesTextView.wantsLayer = true
-        notesTextView.layer?.backgroundColor = NSColor.lightGray.withAlphaComponent(0.3).cgColor
+        notesTextView.layer?.backgroundColor = NSColor.itemBlue.cgColor
+        notesTextView.layer?.borderColor = NSColor.blueBorder.withAlphaComponent(1.5).cgColor
+        notesTextView.layer?.borderWidth = 1
         notesTextView.layer?.cornerRadius = 10
         
         notesScrollView.documentView = notesTextView
@@ -739,38 +767,55 @@ extension InvoiceView : InvoiceItemCVCellDelegate {
         }
     }
     
-    
 }
 
 extension InvoiceView: NSCollectionViewDataSource, NSCollectionViewDelegate, NSCollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
-        return invoiceItemCVList.count
+        if collectionView == invoiceItemCV {
+            return invoiceItemCVList.count
+        } else if collectionView == countryCV {
+            return 5
+        }
+        return 0
     }
     
     func collectionView(_ collectionView: NSCollectionView, itemForRepresentedObjectAt indexPath: IndexPath) -> NSCollectionViewItem {
-        let cell = collectionView.makeItem(withIdentifier: InvoiceItemCVCell.identifier,for: indexPath) as! InvoiceItemCVCell
-        let item = invoiceItemCVList[indexPath.item]
-        
-        cell.currentIndex = indexPath.item
-        cell.delegate = self
+        if collectionView == invoiceItemCV {
+            let cell = collectionView.makeItem(withIdentifier: InvoiceItemCVCell.identifier,for: indexPath) as! InvoiceItemCVCell
+            let item = invoiceItemCVList[indexPath.item]
+            
+            cell.currentIndex = indexPath.item
+            cell.delegate = self
 
-        // IMPORTANT
-        cell.textView.string = item.text
-        cell.qtyLabel.stringValue = item.qty
-        cell.rateLabel.stringValue = item.price
-        cell.amountLabel.stringValue = item.amount.isEmpty ? "0" : item.amount
-        
-        return cell
+            // IMPORTANT
+            cell.textView.string = item.text
+            cell.qtyLabel.stringValue = item.qty
+            cell.rateLabel.stringValue = item.price
+            cell.amountLabel.stringValue = item.amount.isEmpty ? "0" : item.amount
+            
+            return cell
+        } else if collectionView == countryCV {
+            let cell = collectionView.makeItem(withIdentifier: CountryCVCell.identifier,for: indexPath) as! CountryCVCell
+            
+            return cell
+        }
+      return NSCollectionViewItem()
     }
     
     func collectionView(_ collectionView: NSCollectionView, layout collectionViewLayout: NSCollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> NSSize {
-        return NSSize(width: collectionView.frame.size.width, height: 60)
+        if collectionView == invoiceItemCV {
+            return NSSize(width: collectionView.frame.size.width, height: 60)
+        } else if collectionView == countryCV {
+            return NSSize(width: collectionView.frame.size.width, height: 40)
+        }
+        return .zero
     }
     
 }
 
 extension InvoiceView {
+    
     @objc func saveTapped() {
         let generator = InvoicePDFGenerator(
             items:         invoiceItemCVList,
@@ -791,348 +836,166 @@ extension InvoiceView {
         )
         generator.saveAsPDF()
     }
+    
+    @objc func countryPopoverClicked(_ sender: NSClickGestureRecognizer) {
+        guard let anchorView = sender.view else { return }
+        showCountryList(relativeTo: anchorView)
+    }
+    
+    func showCountryList(relativeTo anchorView: NSView) {
+        if let existing = datePopover, existing.isShown {
+            existing.close()
+            datePopover = nil
+            return
+        }
+
+        let popover = NSPopover()
+        popover.behavior = .transient
+
+        let layout = NSCollectionViewFlowLayout()
+        layout.minimumInteritemSpacing = 0
+        layout.minimumLineSpacing = 0
+        
+        countryCV.collectionViewLayout = layout
+        countryCV.dataSource = self
+        countryCV.delegate = self
+        countryCV.isSelectable = true
+        countryCV.allowsEmptySelection = false
+        countryCV.register(CountryCVCell.self, forItemWithIdentifier: CountryCVCell.identifier)
+        countryCV.backgroundColors = [.clear]
+        
+        countrySV.documentView = countryCV
+        countrySV.hasVerticalScroller = false
+        countrySV.hasHorizontalScroller = false
+        countrySV.drawsBackground = false
+        countrySV.translatesAutoresizingMaskIntoConstraints = false
+        
+        let container = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 220))
+        container.addSubview(countrySV)
+
+        NSLayoutConstraint.activate([
+            countrySV.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
+            countrySV.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 12),
+            countrySV.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -12),
+            countrySV.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -12),
+        ])
+
+        let vc = NSViewController()
+        vc.view = container
+
+        popover.contentViewController = vc
+        popover.show(relativeTo: anchorView.bounds, of: anchorView, preferredEdge: .maxY)
+
+        self.datePopover = popover
+    }
+
+
 }
 
-//extension InvoiceView {
-//    // MARK: - PDF Generation
-//
-//    func saveAsPDF() {
-//        generatePDF { pdfData in
-//            guard let pdfData = pdfData else { return }
-//            self.showSavePanel(pdfData: pdfData)
-//        }
-//    }
-//    
-//    private func generatePDF(completion: @escaping (Data?) -> Void) {
-//        
-//        let a4Width:  CGFloat = 595.28
-//        let a4Height: CGFloat = 841.89
-//        let a4Size = CGSize(width: a4Width, height: a4Height)
-//        let margin: CGFloat = 40
-//        
-//        var pdfPages: [NSView] = []
-//        var currentPage = buildPage(size: a4Size)
-//        
-//        // ── AppKit Y starts from BOTTOM ──────────────────────────
-//        // So we build layout from bottom up, then flip when rendering
-//        // Easier approach: track from top, subtract from a4Height when placing
-//        
-//        var currentY: CGFloat = margin  // this represents distance from TOP
-//        
-//        // Header
-//        let headerView = buildHeaderBlock(width: a4Width - (margin * 2))
-//        let headerH = headerView.frame.height
-//        // Place from top: actual AppKit Y = a4Height - currentY - height
-//        headerView.frame.origin = CGPoint(x: margin, y: a4Height - currentY - headerH)
-//        currentPage.addSubview(headerView)
-//        currentY += headerH + 20
-//        
-//        // Items header row
-//        let itemsHeader = buildItemsHeaderRow(width: a4Width - (margin * 2))
-//        let itemsHeaderH = itemsHeader.frame.height
-//        itemsHeader.frame.origin = CGPoint(x: margin, y: a4Height - currentY - itemsHeaderH)
-//        currentPage.addSubview(itemsHeader)
-//        currentY += itemsHeaderH + 5
-//        
-//        // Separator
-//        let sep1 = buildSeparator(width: a4Width - (margin * 2))
-//        sep1.frame.origin = CGPoint(x: margin, y: a4Height - currentY - 1)
-//        currentPage.addSubview(sep1)
-//        currentY += 6
-//        
-//        // Item rows
-//        let rowHeight: CGFloat = 40
-//        
-//        for item in invoiceItemCVList {
-//            let remainingSpace = a4Height - currentY - margin
-//            if remainingSpace < rowHeight {
-//                pdfPages.append(currentPage)
-//                currentPage = buildPage(size: a4Size)
-//                currentY = margin
-//            }
-//            
-//            let row = buildItemRow(item: item, width: a4Width - (margin * 2))
-//            row.frame.origin = CGPoint(x: margin, y: a4Height - currentY - rowHeight)
-//            currentPage.addSubview(row)
-//            currentY += rowHeight
-//        }
-//        
-//        // Separator after items
-//        let sep2 = buildSeparator(width: a4Width - (margin * 2))
-//        sep2.frame.origin = CGPoint(x: margin, y: a4Height - currentY - 1)
-//        currentPage.addSubview(sep2)
-//        currentY += 10
-//        
-//        // Footer
-//        let footerHeight: CGFloat = 120
-//        if (a4Height - currentY - margin) < footerHeight {
-//            pdfPages.append(currentPage)
-//            currentPage = buildPage(size: a4Size)
-//            currentY = margin
-//        }
-//        
-//        let footerView = buildFooterBlock(width: a4Width - (margin * 2))
-//        footerView.frame.origin = CGPoint(x: margin, y: a4Height - currentY - footerHeight)
-//        currentPage.addSubview(footerView)
-//        
-//        pdfPages.append(currentPage)
-//        
-//        // ── Render to PDF ────────────────────────────────────────
-//        let pdfData = NSMutableData()
-//        var mediaBox = CGRect(origin: .zero, size: a4Size)
-//        
-//        guard let consumer = CGDataConsumer(data: pdfData),
-//              let context  = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else {
-//            completion(nil)
-//            return
-//        }
-//        
-//        for page in pdfPages {
-//            page.layoutSubtreeIfNeeded()
-//            
-//            context.beginPage(mediaBox: &mediaBox)
-//            
-//            let nsCtx = NSGraphicsContext(cgContext: context, flipped: false)
-//            NSGraphicsContext.saveGraphicsState()
-//            NSGraphicsContext.current = nsCtx
-//            page.displayIgnoringOpacity(page.bounds, in: nsCtx)
-//            NSGraphicsContext.restoreGraphicsState()
-//            
-//            context.endPage()
-//        }
-//        
-//        context.closePDF()
-//        completion(pdfData as Data)
-//    }
-//    
-//    // MARK: - Page Builder
-//
-//    private func buildPage(size: CGSize) -> NSView {
-//        let page = NSView(frame: CGRect(origin: .zero, size: size))
-//        page.wantsLayer = true
-//        page.layer?.backgroundColor = NSColor.white.cgColor
-//        return page
-//    }
-//
-//    // MARK: - Header Block
-//
-//    private func buildHeaderBlock(width: CGFloat) -> NSView {
-//        let container = NSView(frame: CGRect(x: 0, y: 0, width: width, height: 220))
-//        container.wantsLayer = true
-//
-//        // ── Row 1: INVOICE title (right) + Invoice# (left) ──────
-//        // In AppKit Y=0 is bottom, so highest Y = top of container
-//        // Container height = 220, so top row Y = 220 - 20 - padding
-//
-//        let titleLabel = makeLabel(text: "INVOICE", font: .systemFont(ofSize: 28, weight: .bold), color: .black, alignment: .right)
-//        titleLabel.frame = CGRect(x: width - 160, y: 185, width: 160, height: 35)
-//        container.addSubview(titleLabel)
-//
-//        let invoiceNoTitle = makeLabel(text: "Invoice#", font: .systemFont(ofSize: 13), color: .darkGray)
-//        invoiceNoTitle.frame = CGRect(x: 0, y: 195, width: 100, height: 20)
-//        container.addSubview(invoiceNoTitle)
-//
-//        let invoiceNoVal = makeLabel(text: invoiceNumberField.stringValue.isEmpty ? "-" : invoiceNumberField.stringValue, font: .systemFont(ofSize: 13), color: .black)
-//        invoiceNoVal.frame = CGRect(x: 100, y: 195, width: 160, height: 20)
-//        container.addSubview(invoiceNoVal)
-//
-//        // ── Row 2: Invoice Date ──────────────────────────────────
-//        let invDateTitle = makeLabel(text: "Invoice Date", font: .systemFont(ofSize: 13), color: .darkGray)
-//        invDateTitle.frame = CGRect(x: 0, y: 170, width: 100, height: 20)
-//        container.addSubview(invDateTitle)
-//
-//        let invDateVal = makeLabel(text: invoiceDate.stringValue, font: .systemFont(ofSize: 13), color: .black)
-//        invDateVal.frame = CGRect(x: 100, y: 170, width: 160, height: 20)
-//        container.addSubview(invDateVal)
-//
-//        // ── Row 3: Due Date ──────────────────────────────────────
-//        let dueDateTitle = makeLabel(text: "Due Date", font: .systemFont(ofSize: 13), color: .darkGray)
-//        dueDateTitle.frame = CGRect(x: 0, y: 145, width: 100, height: 20)
-//        container.addSubview(dueDateTitle)
-//
-//        let dueDateVal = makeLabel(text: dueDate.stringValue, font: .systemFont(ofSize: 13), color: .black)
-//        dueDateVal.frame = CGRect(x: 100, y: 145, width: 160, height: 20)
-//        container.addSubview(dueDateVal)
-//
-//        // ── Separator ────────────────────────────────────────────
-//        let sep = buildSeparator(width: width)
-//        sep.frame.origin = CGPoint(x: 0, y: 128)
-//        container.addSubview(sep)
-//
-//        // ── From (left) + Bill To (right) ────────────────────────
-//        let fromName = makeLabel(text: brandNameTitle.stringValue, font: .systemFont(ofSize: 16, weight: .semibold), color: .black)
-//        fromName.frame = CGRect(x: 0, y: 100, width: width / 2 - 10, height: 22)
-//        container.addSubview(fromName)
-//
-//        let fromAddr = makeLabel(text: yourNameField.stringValue, font: .systemFont(ofSize: 12), color: .darkGray)
-//        fromAddr.frame = CGRect(x: 0, y: 78, width: width / 2 - 10, height: 18)
-//        container.addSubview(fromAddr)
-//
-//        let fromCity = makeLabel(text: yourAddressField.stringValue, font: .systemFont(ofSize: 12), color: .darkGray)
-//        fromCity.frame = CGRect(x: 0, y: 56, width: width / 2 - 10, height: 18)
-//        container.addSubview(fromCity)
-//
-//        let fromCountry = makeLabel(text: yourCityStateField.stringValue, font: .systemFont(ofSize: 12), color: .darkGray)
-//        fromCountry.frame = CGRect(x: 0, y: 34, width: width / 2 - 10, height: 18)
-//        container.addSubview(fromCountry)
-//
-//        // Bill To
-//        let billTitle = makeLabel(text: "Bill To", font: .systemFont(ofSize: 16, weight: .semibold), color: .black)
-//        billTitle.frame = CGRect(x: width / 2, y: 100, width: width / 2, height: 22)
-//        container.addSubview(billTitle)
-//
-//        let billName = makeLabel(text: billNameField.stringValue, font: .systemFont(ofSize: 12), color: .darkGray)
-//        billName.frame = CGRect(x: width / 2, y: 78, width: width / 2, height: 18)
-//        container.addSubview(billName)
-//
-//        let billAddr = makeLabel(text: billAddressField.stringValue, font: .systemFont(ofSize: 12), color: .darkGray)
-//        billAddr.frame = CGRect(x: width / 2, y: 56, width: width / 2, height: 18)
-//        container.addSubview(billAddr)
-//
-//        let billCity = makeLabel(text: billCityStateField.stringValue, font: .systemFont(ofSize: 12), color: .darkGray)
-//        billCity.frame = CGRect(x: width / 2, y: 34, width: width / 2, height: 18)
-//        container.addSubview(billCity)
-//
-//        return container
-//    }
-//    
-//    // MARK: - Items Header Row
-//
-//    private func buildItemsHeaderRow(width: CGFloat) -> NSView {
-//        let container = NSView(frame: CGRect(x: 0, y: 0, width: width, height: 25))
-//
-//        let desc = makeLabel(text: "DESCRIPTION", font: .systemFont(ofSize: 11, weight: .semibold), color: .systemBlue)
-//        desc.frame = CGRect(x: 0, y: 0, width: width * 0.46, height: 20)
-//        container.addSubview(desc)
-//
-//        let qty = makeLabel(text: "QTY", font: .systemFont(ofSize: 11, weight: .semibold), color: .systemBlue, alignment: .right)
-//        qty.frame = CGRect(x: width * 0.46, y: 0, width: width * 0.18, height: 20)
-//        container.addSubview(qty)
-//
-//        let rate = makeLabel(text: "RATE", font: .systemFont(ofSize: 11, weight: .semibold), color: .systemBlue, alignment: .right)
-//        rate.frame = CGRect(x: width * 0.64, y: 0, width: width * 0.18, height: 20)
-//        container.addSubview(rate)
-//
-//        let amount = makeLabel(text: "AMOUNT", font: .systemFont(ofSize: 11, weight: .semibold), color: .systemBlue, alignment: .right)
-//        amount.frame = CGRect(x: width * 0.82, y: 0, width: width * 0.18, height: 20)
-//        container.addSubview(amount)
-//
-//        return container
-//    }
-//
-//    // MARK: - Item Row
-//
-//    private func buildItemRow(item: AmountModel, width: CGFloat) -> NSView {
-//        let container = NSView(frame: CGRect(x: 0, y: 0, width: width, height: 50))
-//
-//        let desc = makeLabel(text: item.qty.isEmpty ? "-" : item.qty, font: .systemFont(ofSize: 12), color: .black)
-//        desc.frame = CGRect(x: 0, y: 15, width: width * 0.46, height: 20)
-//        container.addSubview(desc)
-//
-//        let qty = makeLabel(text: item.qty.isEmpty ? "0" : item.qty, font: .systemFont(ofSize: 12), color: .black, alignment: .right)
-//        qty.frame = CGRect(x: width * 0.46, y: 15, width: width * 0.18, height: 20)
-//        container.addSubview(qty)
-//
-//        let rate = makeLabel(text: item.price.isEmpty ? "0" : item.price, font: .systemFont(ofSize: 12), color: .black, alignment: .right)
-//        rate.frame = CGRect(x: width * 0.64, y: 15, width: width * 0.18, height: 20)
-//        container.addSubview(rate)
-//
-//        let amount = makeLabel(text: item.amount.isEmpty ? "0" : item.amount, font: .systemFont(ofSize: 12), color: .black, alignment: .right)
-//        amount.frame = CGRect(x: width * 0.82, y: 15, width: width * 0.18, height: 20)
-//        container.addSubview(amount)
-//
-//        // Bottom separator
-//        let sep = buildSeparator(width: width)
-//        sep.frame.origin = CGPoint(x: 0, y: 48)
-//        container.addSubview(sep)
-//
-//        return container
-//    }
-//
-//    // MARK: - Footer Block
-//
-//    private func buildFooterBlock(width: CGFloat) -> NSView {
-//        let container = NSView(frame: CGRect(x: 0, y: 0, width: width, height: 120))
-//
-//        // Subtotal row
-//        let subtotalTitle = makeLabel(text: "Subtotal", font: .systemFont(ofSize: 13), color: .systemBlue)
-//        subtotalTitle.frame = CGRect(x: width * 0.5, y: 80, width: width * 0.25, height: 20)
-//        container.addSubview(subtotalTitle)
-//
-//        let subtotalVal = makeLabel(text: subTotalAmout.titleText.stringValue, font: .systemFont(ofSize: 13), color: .systemBlue, alignment: .right)
-//        subtotalVal.frame = CGRect(x: width * 0.75, y: 80, width: width * 0.25, height: 20)
-//        container.addSubview(subtotalVal)
-//
-//        // Tax row
-//        let taxTitle = makeLabel(text: "Tax", font: .systemFont(ofSize: 13), color: .systemBlue)
-//        taxTitle.frame = CGRect(x: width * 0.5, y: 52, width: width * 0.25, height: 20)
-//        container.addSubview(taxTitle)
-//
-//        let taxVal = makeLabel(
-//            text: taxAmout.stringValue.isEmpty ? "0 %" : "\(taxAmout.stringValue) %",
-//            font: .systemFont(ofSize: 13), color: .black, alignment: .right
-//        )
-//        taxVal.frame = CGRect(x: width * 0.75, y: 52, width: width * 0.25, height: 20)
-//        container.addSubview(taxVal)
-//
-//        // Separator
-//        let sep = buildSeparator(width: width * 0.5)
-//        sep.frame.origin = CGPoint(x: width * 0.5, y: 45)
-//        container.addSubview(sep)
-//
-//        // Total row
-//        let totalTitle = makeLabel(text: "Total", font: .systemFont(ofSize: 14, weight: .semibold), color: .systemBlue)
-//        totalTitle.frame = CGRect(x: width * 0.5, y: 20, width: width * 0.25, height: 22)
-//        container.addSubview(totalTitle)
-//
-//        let totalVal = makeLabel(text: totalAmout.titleText.stringValue, font: .systemFont(ofSize: 14, weight: .semibold), color: .systemBlue, alignment: .right)
-//        totalVal.frame = CGRect(x: width * 0.75, y: 20, width: width * 0.25, height: 22)
-//        container.addSubview(totalVal)
-//
-//        return container
-//    }
-//    
-//    // MARK: - Helpers
-//
-//    private func buildSeparator(width: CGFloat) -> NSView {
-//        let sep = NSView(frame: CGRect(x: 0, y: 0, width: width, height: 0.5))
-//        sep.wantsLayer = true
-//        sep.layer?.backgroundColor = NSColor.lightGray.cgColor
-//        return sep
-//    }
-//
-//    private func makeLabel(
-//        text: String,
-//        font: NSFont,
-//        color: NSColor,
-//        alignment: NSTextAlignment = .left
-//    ) -> NSTextField {
-//        let label = NSTextField(labelWithString: text)
-//        label.font = font
-//        label.textColor = color
-//        label.alignment = alignment
-//        label.lineBreakMode = .byTruncatingTail
-//        return label
-//    }
-//
-//    // MARK: - NSSavePanel
-//
-//    private func showSavePanel(pdfData: Data) {
-//        let panel = NSSavePanel()
-//        panel.title            = "Save Invoice"
-//        panel.nameFieldLabel   = "File name:"
-//        panel.nameFieldStringValue = "Invoice_\(invoiceNumberField.stringValue.isEmpty ? "Draft" : invoiceNumberField.stringValue)"
-//        panel.allowedContentTypes  = [.pdf]
-//        panel.canCreateDirectories = true
-//
-//        panel.begin { response in
-//            guard response == .OK, let url = panel.url else { return }
-//            do {
-//                try pdfData.write(to: url)
-//                print("PDF saved to: \(url.path)")
-//            } catch {
-//                print("Failed to save PDF: \(error)")
-//            }
-//        }
-//    }
-//}
+// date pickers
+extension InvoiceView {
+    
+    @objc func invoiceDateClicked(_ sender: NSClickGestureRecognizer) {
+        guard let anchorView = sender.view else { return }
+        showDatePicker(relativeTo: anchorView, type: "invoice")
+    }
+    
+    @objc func dueDateClicked(_ sender: NSClickGestureRecognizer) {
+        guard let anchorView = sender.view else { return }
+        showDatePicker(relativeTo: anchorView, type: "due")
+    }
+
+    func showDatePicker(relativeTo anchorView: NSView, type: String) {
+        if let existing = datePopover, existing.isShown {
+            existing.close()
+            datePopover = nil
+            return
+        }
+
+        let popover = NSPopover()
+        popover.behavior = .transient
+
+        let picker = NSDatePicker()
+        picker.datePickerStyle = .clockAndCalendar
+        picker.datePickerElements = .yearMonthDay
+        picker.dateValue = Date()
+        picker.isBordered = false
+        picker.translatesAutoresizingMaskIntoConstraints = false
+
+        let confirmBtn = NSButton()
+        confirmBtn.title = "Done"
+        confirmBtn.bezelStyle = .rounded
+        confirmBtn.target = self
+        if type == "invoice" {
+            confirmBtn.action = #selector(invoiceDatePicked(_:))
+        } else {
+            confirmBtn.action = #selector(dueDatePicked(_:))
+        }
+        confirmBtn.translatesAutoresizingMaskIntoConstraints = false
+
+        let container = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 220))
+        container.addSubview(picker)
+        container.addSubview(confirmBtn)
+
+        NSLayoutConstraint.activate([
+            picker.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
+            picker.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 12),
+            picker.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -12),
+
+            confirmBtn.topAnchor.constraint(equalTo: picker.bottomAnchor, constant: 10),
+            confirmBtn.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -12),
+            confirmBtn.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -12),
+            confirmBtn.widthAnchor.constraint(equalToConstant: 80)
+        ])
+
+        let vc = NSViewController()
+        vc.view = container
+
+        popover.contentViewController = vc
+        popover.show(relativeTo: anchorView.bounds, of: anchorView, preferredEdge: .maxY)
+
+        self.datePopover = popover
+        self.datePicker = picker
+    }
+    
+    @objc func invoiceDatePicked(_ sender: NSButton) {
+        guard let picker = datePicker else { return }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+        let dateString = formatter.string(from: picker.dateValue)
+
+        if let dueDate = duePickedDate {
+            guard picker.dateValue < dueDate else { return }
+        }
+        
+        // Set to your label/text field
+        invoicePickedDate = picker.dateValue
+        invoiceDate.stringValue = dateString
+        print("date: \(dateString)")
+
+        datePopover?.close()
+        datePopover = nil
+    }
+    
+    @objc func dueDatePicked(_ sender: NSButton) {
+        guard let picker = datePicker else { return }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+        let dateString = formatter.string(from: picker.dateValue)
+
+        if let invoiceDate = invoicePickedDate {
+            guard picker.dateValue > invoiceDate else { return }
+        }
+        
+        // Set to your label/text field
+        duePickedDate = picker.dateValue
+        dueDate.stringValue = dateString
+        print("date: \(dateString)")
+
+        datePopover?.close()
+        datePopover = nil
+    }
+    
+}

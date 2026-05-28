@@ -57,6 +57,7 @@ class TopBarView: NSView {
 
         // "Draft" badge
         draftBadge.wantsLayer = true
+        draftBadge.isHidden = true
         draftBadge.layer?.backgroundColor = NSColor.white.withAlphaComponent(0.1).cgColor
         draftBadge.layer?.borderColor = NSColor.white.withAlphaComponent(0.2).cgColor
         draftBadge.layer?.borderWidth = 1
@@ -71,7 +72,9 @@ class TopBarView: NSView {
         draftBadge.addSubview(draftLabel)
 
         // "Invoice #INV-2024-0001" subtitle
-        subtitleLabel = NSTextField(labelWithString: "Invoice #INV-2024-0001")
+        let year = Calendar.current.component(.year, from: Date())
+        var invoiceNumber = "INV-\(year)-0001"
+        subtitleLabel = NSTextField(labelWithString: invoiceNumber)
         subtitleLabel.font = .systemFont(ofSize: 12, weight: .regular)
         subtitleLabel.textColor = .white.withAlphaComponent(0.5)
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -105,12 +108,14 @@ class TopBarView: NSView {
         autoSavedIcon.image = NSImage(systemSymbolName: "checkmark.circle.fill",
                                        accessibilityDescription: nil)
         autoSavedIcon.contentTintColor = NSColor.systemGreen
+        autoSavedIcon.isHidden = true
         autoSavedIcon.translatesAutoresizingMaskIntoConstraints = false
         addSubview(autoSavedIcon)
 
         autoSavedLabel = NSTextField(labelWithString: "Auto-saved")
         autoSavedLabel.font = .systemFont(ofSize: 13, weight: .regular)
         autoSavedLabel.textColor = .white.withAlphaComponent(0.6)
+        autoSavedLabel.isHidden = true
         autoSavedLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(autoSavedLabel)
 
