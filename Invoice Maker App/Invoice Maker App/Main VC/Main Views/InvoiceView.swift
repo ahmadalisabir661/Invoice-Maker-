@@ -29,8 +29,10 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
     var yourNameField = NSTextField()
     var yourAddressField = NSTextField()
     var yourCityStateField = NSTextField()
+    var yourCountryView = NSView()
     var yourCountryLabel : NSTextField!
-    
+    var yourCountryIcon = NSImageView()
+
     var billTolabel : NSTextField!
     var clearView = NSView()
     var clearText : NSTextField!
@@ -82,6 +84,9 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
     var invoicePickedDate : Date?
     var duePickedDate : Date?
     
+    var yourCountryViewWidth : NSLayoutConstraint!
+    var isYourCountry: Bool = true
+    var searchField = NSTextField()
     let countryCV = NSCollectionView()
     let countrySV = NSScrollView()
 
@@ -89,10 +94,15 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         AmountModel(text: "", qty: "", price: "", amount: "")
     ]
     
+    var countryCVList : [String] = []
+    var countryCVFilteredList : [String] = []
+    
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         self.wantsLayer = true
         self.layer?.backgroundColor = NSColor.mainBG.cgColor
+        
+        addCountryList()
         setupScrollView()
         headerSection()
         collectionViewSection()
@@ -286,14 +296,48 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         
         // ----------------------------------
         
+        yourCountryView.wantsLayer = true
+        yourCountryView.layer?.borderColor = NSColor.blueBorder.cgColor
+        yourCountryView.layer?.borderWidth = 1
+        yourCountryView.layer?.cornerRadius = 5
+        yourCountryView.layer?.backgroundColor = NSColor.itemBlue.cgColor
+        yourCountryView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(yourCountryView)
+        
+        yourCountryView.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(yourCountryPopover(_:))))
+        
+        yourCountryViewWidth = yourCountryView.widthAnchor.constraint(equalToConstant: 0)
+        updateYourCountryWidth("Canada")
+        
+        NSLayoutConstraint.activate([
+            yourCountryView.topAnchor.constraint(equalTo: yourCityStateField.bottomAnchor, constant: 15),
+            yourCountryView.leadingAnchor.constraint(equalTo: yourCityStateField.leadingAnchor),
+            yourCountryViewWidth,
+            yourCountryView.heightAnchor.constraint(equalToConstant: 30),
+        ])
+        
+        // ----------------------------------
+        
         yourCountryLabel = NSTextField(labelWithString: "Canada")
         yourCountryLabel.font = .systemFont(ofSize: 16, weight: .regular)
         yourCountryLabel.textColor = .white
-        contentView.addSubview(yourCountryLabel)
+        yourCountryView.addSubview(yourCountryLabel)
+                
+        yourCountryLabel.anchor(top: nil, paddingTop: 0, bottom: nil, paddingBottom: 0, left: yourCountryView.leadingAnchor, paddingLeft: 5, right: nil, paddingRight: 0, width: 0, height: 0)
+        yourCountryLabel.center(centerX: nil, centerY: yourCountryView.centerYAnchor)
         
-        yourCountryLabel.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(countryPopoverClicked(_:))))
+        // ----------------------------------
         
-        yourCountryLabel.anchor(top: yourCityStateField.bottomAnchor, paddingTop: 15, bottom: nil, paddingBottom: 0, left: yourCityStateField.leadingAnchor, paddingLeft: 0, right: nil, paddingRight: 0, width: 0, height: 0)
+        let image = NSImage(systemSymbolName: "chevron.down", accessibilityDescription: nil)
+
+        yourCountryIcon.image = image
+        yourCountryIcon.image?.isTemplate = true
+        yourCountryIcon.contentTintColor = .white
+        yourCountryIcon.imageScaling = .scaleAxesIndependently
+        yourCountryView.addSubview(yourCountryIcon)
+        
+        yourCountryIcon.anchor(top: nil, paddingTop: 0, bottom: nil, paddingBottom: 0, left: nil, paddingLeft: 0, right: yourCountryView.trailingAnchor, paddingRight: 5, width: 15, height: 10)
+        yourCountryIcon.center(centerX: nil, centerY: yourCountryView.centerYAnchor)
         
         // ----------------------------------
         
@@ -374,6 +418,8 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         billCountryLabel.font = .systemFont(ofSize: 16, weight: .regular)
         billCountryLabel.textColor = .white
         contentView.addSubview(billCountryLabel)
+        
+        billCountryLabel.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(billingCountryPopover(_:))))
         
         billCountryLabel.anchor(top: billCityStateField.bottomAnchor, paddingTop: 15, bottom: nil, paddingBottom: 0, left: billCityStateField.leadingAnchor, paddingLeft: 0, right: nil, paddingRight: 0, width: 0, height: 0)
                 
@@ -664,6 +710,14 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
 
 extension InvoiceView : InvoiceItemCVCellDelegate {
     
+    func addCountryList() {
+        countryCVFilteredList = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Argentina", "Armenia", "Australia",
+                         "Austria", "Azerbaijan", "Bahrain", "Bangladesh", "Belarus", "Belgium", "Bhutan", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Cambodia", "Cameroon", "Canada", "Chile", "China", "Colombia", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Estonia", "Ethiopia", "Finland", "France", "Georgia", "Germany", "Ghana", "Greece", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Japan",
+                         "Jordan", "Kazakhstan", "Kenya", "Kuwait", "Latvia", "Lebanon", "Libya", "Lithuania", "Luxembourg", "Malaysia",
+                         "Maldives", "Mexico", "Monaco", "Morocco", "Myanmar", "Nepal", "Netherlands", "New Zealand", "Nigeria", "North Korea", "Norway", "Oman", "Pakistan", "Palestine", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Saudi Arabia", "Singapore", "Slovakia", "South Africa", "South Korea", "Spain", "Sri Lanka", "Sweden", "Switzerland", "Thailand", "Turkey", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Vietnam"]
+        countryCVList = countryCVFilteredList
+    }
+    
     @objc func addNewItem() {
         let oldConstant = itemScrollViewConstraint.constant
         itemScrollViewConstraint.constant = oldConstant + 60
@@ -765,8 +819,27 @@ extension InvoiceView : InvoiceItemCVCellDelegate {
                 totalAmout.titleText.stringValue = String(format: "%.2f", total)
             }
         }
+        else if field == searchField {
+            if field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines) == "" {
+                countryCVFilteredList = countryCVList
+            } else {
+                countryCVFilteredList = countryCVList.filter {
+                    $0.localizedCaseInsensitiveContains(field.stringValue)
+                }
+            }
+            DispatchQueue.main.async {
+                self.countryCV.reloadData()
+            }
+        }
     }
     
+    func updateYourCountryWidth(_ text: String) {
+        let font = NSFont.systemFont(ofSize: 16, weight: .regular)
+        let textWidth = (text as NSString).size(withAttributes: [.font: font]).width
+        
+        // 5 (left padding) + textWidth + 8 (gap) + 15 (icon) + 5 (right padding)
+        yourCountryViewWidth.constant = textWidth + 33
+    }
 }
 
 extension InvoiceView: NSCollectionViewDataSource, NSCollectionViewDelegate, NSCollectionViewDelegateFlowLayout {
@@ -775,7 +848,7 @@ extension InvoiceView: NSCollectionViewDataSource, NSCollectionViewDelegate, NSC
         if collectionView == invoiceItemCV {
             return invoiceItemCVList.count
         } else if collectionView == countryCV {
-            return 5
+            return countryCVFilteredList.count
         }
         return 0
     }
@@ -797,7 +870,7 @@ extension InvoiceView: NSCollectionViewDataSource, NSCollectionViewDelegate, NSC
             return cell
         } else if collectionView == countryCV {
             let cell = collectionView.makeItem(withIdentifier: CountryCVCell.identifier,for: indexPath) as! CountryCVCell
-            
+            cell.titleText.stringValue = countryCVFilteredList[indexPath.item]
             return cell
         }
       return NSCollectionViewItem()
@@ -810,6 +883,19 @@ extension InvoiceView: NSCollectionViewDataSource, NSCollectionViewDelegate, NSC
             return NSSize(width: collectionView.frame.size.width, height: 40)
         }
         return .zero
+    }
+    
+    func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
+        if collectionView == countryCV {
+            guard let index = indexPaths.first else {return}
+            if isYourCountry {
+                let text = countryCVFilteredList[index.item]
+                updateYourCountryWidth(text)
+                yourCountryLabel.stringValue = text
+            } else {
+                billCountryLabel.stringValue = countryCVFilteredList[index.item]
+            }
+        }
     }
     
 }
@@ -837,12 +923,23 @@ extension InvoiceView {
         generator.saveAsPDF()
     }
     
-    @objc func countryPopoverClicked(_ sender: NSClickGestureRecognizer) {
+    @objc func yourCountryPopover(_ sender: NSClickGestureRecognizer) {
         guard let anchorView = sender.view else { return }
-        showCountryList(relativeTo: anchorView)
+        searchField.stringValue = ""
+        countryCVFilteredList = countryCVList
+        isYourCountry = true
+        showCountryList(relativeTo: anchorView, isYourCountry: true)
     }
     
-    func showCountryList(relativeTo anchorView: NSView) {
+    @objc func billingCountryPopover(_ sender: NSClickGestureRecognizer) {
+        guard let anchorView = sender.view else { return }
+        searchField.stringValue = ""
+        countryCVFilteredList = countryCVList
+        isYourCountry = false
+        showCountryList(relativeTo: anchorView, isYourCountry: false)
+    }
+    
+    func showCountryList(relativeTo anchorView: NSView, isYourCountry: Bool) {
         if let existing = datePopover, existing.isShown {
             existing.close()
             datePopover = nil
@@ -852,6 +949,37 @@ extension InvoiceView {
         let popover = NSPopover()
         popover.behavior = .transient
 
+        var searchView = NSView()
+        searchView.wantsLayer = true
+        searchView.layer?.borderColor = NSColor.blueBorder.cgColor
+        searchView.layer?.borderWidth = 1
+        searchView.layer?.cornerRadius = 8
+        searchView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // ---------------------------------
+        
+        var searchIcon = NSImageView()
+        searchIcon.image = .search
+        searchIcon.image?.isTemplate = true
+        searchIcon.contentTintColor = .white
+        searchIcon.imageScaling = .scaleAxesIndependently
+        searchIcon.translatesAutoresizingMaskIntoConstraints = false
+        
+        // ---------------------------------
+        
+        searchField.font = .systemFont(ofSize: 16, weight: .medium)
+        searchField.placeholderString = "Search Country..."
+        searchField.textColor = .white
+        searchField.focusRingType = .none
+        searchField.isBezeled = false
+        searchField.delegate = self
+        searchField.drawsBackground = false
+        searchField.maximumNumberOfLines = 0
+        searchField.lineBreakMode = .byTruncatingTail
+        searchField.translatesAutoresizingMaskIntoConstraints = false
+        
+        // ---------------------------------
+        
         let layout = NSCollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
@@ -870,11 +998,29 @@ extension InvoiceView {
         countrySV.drawsBackground = false
         countrySV.translatesAutoresizingMaskIntoConstraints = false
         
-        let container = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 220))
+        let container = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 270))
+        container.addSubview(searchView)
+        searchView.addSubview(searchIcon)
+        searchView.addSubview(searchField)
         container.addSubview(countrySV)
 
         NSLayoutConstraint.activate([
-            countrySV.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
+            searchView.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
+            searchView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 12),
+            searchView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -12),
+            searchView.heightAnchor.constraint(equalToConstant: 40),
+            
+            searchIcon.leadingAnchor.constraint(equalTo: searchView.leadingAnchor, constant: 8),
+            searchIcon.centerYAnchor.constraint(equalTo: searchView.centerYAnchor),
+            searchIcon.heightAnchor.constraint(equalToConstant: 15),
+            searchIcon.widthAnchor.constraint(equalToConstant: 15),
+            
+            searchField.centerYAnchor.constraint(equalTo: searchView.centerYAnchor),
+            searchField.leadingAnchor.constraint(equalTo: searchIcon.trailingAnchor, constant: 10),
+            searchField.trailingAnchor.constraint(equalTo: searchView.trailingAnchor, constant: -5),
+            searchField.heightAnchor.constraint(equalToConstant: 20),
+            
+            countrySV.topAnchor.constraint(equalTo: searchView.bottomAnchor, constant: 10),
             countrySV.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 12),
             countrySV.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -12),
             countrySV.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -12),
@@ -883,12 +1029,47 @@ extension InvoiceView {
         let vc = NSViewController()
         vc.view = container
 
+//        popover.contentViewController = vc
+//        DispatchQueue.main.async {
+//            popover.show(relativeTo: anchorView.bounds, of: anchorView, preferredEdge: .maxY)
+//        }
+//        
+//        DispatchQueue.main.async { [self] in
+//            for (i, country) in countryCVFilteredList.enumerated() {
+//                if isYourCountry {
+//                    if country == yourCountryLabel.stringValue {
+//                        let indexPath = IndexPath(item: i, section: 0)
+//                        self.countryCV.selectItems(at: [indexPath], scrollPosition: .top)
+//                    }
+//                } else {
+//                    if country == billCountryLabel.stringValue {
+//                        let indexPath = IndexPath(item: i, section: 0)
+//                        self.countryCV.selectItems(at: [indexPath], scrollPosition: .top)
+//                    }
+//                }
+//            }
+//        }
+//        
+//        self.datePopover = popover
         popover.contentViewController = vc
-        popover.show(relativeTo: anchorView.bounds, of: anchorView, preferredEdge: .maxY)
-
         self.datePopover = popover
-    }
 
+        DispatchQueue.main.async {
+            popover.show(relativeTo: anchorView.bounds, of: anchorView, preferredEdge: .maxY)
+            
+            // Small delay to ensure cells are laid out after popover appears
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                guard let self = self else { return }
+                
+                let targetLabel = self.isYourCountry ? self.yourCountryLabel.stringValue : self.billCountryLabel.stringValue
+                
+                if let index = self.countryCVFilteredList.firstIndex(of: targetLabel) {
+                    let indexPath = IndexPath(item: index, section: 0)
+                    self.countryCV.selectItems(at: [indexPath], scrollPosition: .centeredVertically)
+                }
+            }
+        }
+    }
 
 }
 
