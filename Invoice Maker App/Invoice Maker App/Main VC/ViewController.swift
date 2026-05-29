@@ -97,6 +97,8 @@ class ViewController: NSViewController, NSWindowDelegate {
         // Hook up button actions
         topBar.saveButton.target = self
         topBar.saveButton.action = #selector(saveTapped)
+        topBar.shareButton.target = self
+        topBar.shareButton.action = #selector(shareTapped)
         
         // ------------------------------
         
@@ -121,6 +123,10 @@ extension ViewController {
     
     @objc func saveTapped() {
         invoiceView.saveTapped()
+    }
+    
+    @objc func shareTapped() {
+        invoiceView.shareTapped(view: topBar.shareButton)
     }
     
 }

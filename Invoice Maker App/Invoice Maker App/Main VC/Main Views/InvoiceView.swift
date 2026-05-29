@@ -40,8 +40,10 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
     var billNameField = NSTextField()
     var billAddressField = NSTextField()
     var billCityStateField = NSTextField()
+    var billCountryView = NSView()
     var billCountryLabel : NSTextField!
-    
+    var billCountryIcon = NSImageView()
+
     var invoiceNoLabel : NSTextField!
     var invoiceDateLabel : NSTextField!
     var invoiceDate : NSTextField!
@@ -85,6 +87,7 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
     var duePickedDate : Date?
     
     var yourCountryViewWidth : NSLayoutConstraint!
+    var billCountryViewWidth : NSLayoutConstraint!
     var isYourCountry: Bool = true
     var searchField = NSTextField()
     let countryCV = NSCollectionView()
@@ -254,7 +257,7 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
                 
         // ----------------------------------
         
-        yourNameField.placeholderString = "Your Name"
+        yourNameField.placeholderString = "Full Name"
         yourNameField.font = .systemFont(ofSize: 16, weight: .regular)
         yourNameField.textColor = .white
         yourNameField.backgroundColor = .clear
@@ -268,7 +271,7 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         
         // ----------------------------------
         
-        yourAddressField.placeholderString = "Address"
+        yourAddressField.placeholderString = "Business Address"
         yourAddressField.font = .systemFont(ofSize: 16, weight: .regular)
         yourAddressField.textColor = .white
         yourAddressField.backgroundColor = .clear
@@ -372,7 +375,7 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         
         // ----------------------------------
         
-        billNameField.placeholderString = "Your Name"
+        billNameField.placeholderString = "Client Name"
         billNameField.font = .systemFont(ofSize: 16, weight: .regular)
         billNameField.textColor = .white
         billNameField.backgroundColor = .clear
@@ -386,7 +389,7 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
                 
         // ----------------------------------
         
-        billAddressField.placeholderString = "Address"
+        billAddressField.placeholderString = "Client Address"
         billAddressField.font = .systemFont(ofSize: 16, weight: .regular)
         billAddressField.textColor = .white
         billAddressField.backgroundColor = .clear
@@ -414,15 +417,49 @@ class InvoiceView : BaseView, NSTextFieldDelegate {
         
         // ----------------------------------
         
+        billCountryView.wantsLayer = true
+        billCountryView.layer?.borderColor = NSColor.blueBorder.cgColor
+        billCountryView.layer?.borderWidth = 1
+        billCountryView.layer?.cornerRadius = 5
+        billCountryView.layer?.backgroundColor = NSColor.itemBlue.cgColor
+        billCountryView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(billCountryView)
+        
+        billCountryView.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(billingCountryPopover(_:))))
+        
+        billCountryViewWidth = billCountryView.widthAnchor.constraint(equalToConstant: 0)
+        updateBillCountryWidth("Canada")
+        
+        NSLayoutConstraint.activate([
+            billCountryView.topAnchor.constraint(equalTo: billCityStateField.bottomAnchor, constant: 15),
+            billCountryView.leadingAnchor.constraint(equalTo: billCityStateField.leadingAnchor),
+            billCountryViewWidth,
+            billCountryView.heightAnchor.constraint(equalToConstant: 30),
+        ])
+                
+        // ----------------------------------
+        
         billCountryLabel = NSTextField(labelWithString: "Canada")
         billCountryLabel.font = .systemFont(ofSize: 16, weight: .regular)
         billCountryLabel.textColor = .white
-        contentView.addSubview(billCountryLabel)
-        
-        billCountryLabel.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(billingCountryPopover(_:))))
-        
-        billCountryLabel.anchor(top: billCityStateField.bottomAnchor, paddingTop: 15, bottom: nil, paddingBottom: 0, left: billCityStateField.leadingAnchor, paddingLeft: 0, right: nil, paddingRight: 0, width: 0, height: 0)
+        billCountryView.addSubview(billCountryLabel)
                 
+        billCountryLabel.anchor(top: nil, paddingTop: 0, bottom: nil, paddingBottom: 0, left: billCountryView.leadingAnchor, paddingLeft: 5, right: nil, paddingRight: 0, width: 0, height: 0)
+        billCountryLabel.center(centerX: nil, centerY: billCountryView.centerYAnchor)
+        
+        // ----------------------------------
+        
+//        let image = NSImage(systemSymbolName: "chevron.down", accessibilityDescription: nil)
+
+        billCountryIcon.image = image
+        billCountryIcon.image?.isTemplate = true
+        billCountryIcon.contentTintColor = .white
+        billCountryIcon.imageScaling = .scaleAxesIndependently
+        billCountryView.addSubview(billCountryIcon)
+        
+        billCountryIcon.anchor(top: nil, paddingTop: 0, bottom: nil, paddingBottom: 0, left: nil, paddingLeft: 0, right: billCountryView.trailingAnchor, paddingRight: 5, width: 15, height: 10)
+        billCountryIcon.center(centerX: nil, centerY: billCountryView.centerYAnchor)
+        
         // ----------------------------------
         
         partition_1.wantsLayer = true
@@ -840,6 +877,15 @@ extension InvoiceView : InvoiceItemCVCellDelegate {
         // 5 (left padding) + textWidth + 8 (gap) + 15 (icon) + 5 (right padding)
         yourCountryViewWidth.constant = textWidth + 33
     }
+    
+    func updateBillCountryWidth(_ text: String) {
+        let font = NSFont.systemFont(ofSize: 16, weight: .regular)
+        let textWidth = (text as NSString).size(withAttributes: [.font: font]).width
+        
+        // 5 (left padding) + textWidth + 8 (gap) + 15 (icon) + 5 (right padding)
+        billCountryViewWidth.constant = textWidth + 33
+    }
+    
 }
 
 extension InvoiceView: NSCollectionViewDataSource, NSCollectionViewDelegate, NSCollectionViewDelegateFlowLayout {
@@ -888,12 +934,13 @@ extension InvoiceView: NSCollectionViewDataSource, NSCollectionViewDelegate, NSC
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
         if collectionView == countryCV {
             guard let index = indexPaths.first else {return}
+            let text = countryCVFilteredList[index.item]
             if isYourCountry {
-                let text = countryCVFilteredList[index.item]
                 updateYourCountryWidth(text)
                 yourCountryLabel.stringValue = text
             } else {
-                billCountryLabel.stringValue = countryCVFilteredList[index.item]
+                updateBillCountryWidth(text)
+                billCountryLabel.stringValue = text
             }
         }
     }
@@ -921,6 +968,27 @@ extension InvoiceView {
             notes:         notesTextView.string
         )
         generator.saveAsPDF()
+    }
+    
+    @objc func shareTapped(view: NSView) {
+        let generator = InvoicePDFGenerator(
+            items:         invoiceItemCVList,
+            invoiceNumber: invoiceNumberField.stringValue,
+            invoiceDate:   invoiceDate.stringValue,
+            dueDate:       dueDate.stringValue,
+            brandName:     brandNameTitle.stringValue,
+            yourName:      yourNameField.stringValue,
+            yourAddress:   yourAddressField.stringValue,
+            yourCityState: yourCityStateField.stringValue,
+            billName:      billNameField.stringValue,
+            billAddress:   billAddressField.stringValue,
+            billCityState: billCityStateField.stringValue,
+            subtotal:      subTotalAmout.titleText.stringValue,
+            tax:           taxAmout.stringValue,
+            total:         totalAmout.titleText.stringValue,
+            notes:         notesTextView.string
+        )
+        generator.sharePDF(view: view)
     }
     
     @objc func yourCountryPopover(_ sender: NSClickGestureRecognizer) {
@@ -1028,29 +1096,7 @@ extension InvoiceView {
 
         let vc = NSViewController()
         vc.view = container
-
-//        popover.contentViewController = vc
-//        DispatchQueue.main.async {
-//            popover.show(relativeTo: anchorView.bounds, of: anchorView, preferredEdge: .maxY)
-//        }
-//        
-//        DispatchQueue.main.async { [self] in
-//            for (i, country) in countryCVFilteredList.enumerated() {
-//                if isYourCountry {
-//                    if country == yourCountryLabel.stringValue {
-//                        let indexPath = IndexPath(item: i, section: 0)
-//                        self.countryCV.selectItems(at: [indexPath], scrollPosition: .top)
-//                    }
-//                } else {
-//                    if country == billCountryLabel.stringValue {
-//                        let indexPath = IndexPath(item: i, section: 0)
-//                        self.countryCV.selectItems(at: [indexPath], scrollPosition: .top)
-//                    }
-//                }
-//            }
-//        }
-//        
-//        self.datePopover = popover
+        
         popover.contentViewController = vc
         self.datePopover = popover
 

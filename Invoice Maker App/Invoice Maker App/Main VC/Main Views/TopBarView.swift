@@ -142,6 +142,7 @@ class TopBarView: NSView {
             style: .purple
         )
         addSubview(uploadButton)
+        uploadButton.isHidden = true
 
         // ── More (⋮) button ───────────────────────────────
         moreButton.image = NSImage(systemSymbolName: "ellipsis",
@@ -168,7 +169,7 @@ class TopBarView: NSView {
             uploadButton.widthAnchor.constraint(equalToConstant: 140),
 
             // Share button — left of upload
-            shareButton.trailingAnchor.constraint(equalTo: uploadButton.leadingAnchor, constant: -10),
+            shareButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             shareButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             shareButton.heightAnchor.constraint(equalToConstant: 34),
             shareButton.widthAnchor.constraint(equalToConstant: 80),

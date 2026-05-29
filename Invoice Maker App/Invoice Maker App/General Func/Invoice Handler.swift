@@ -79,6 +79,29 @@ class InvoicePDFGenerator {
         }
     }
     
+    func sharePDF(view: NSView) {
+        generatePDF { [weak self] pdfData in
+            guard let self = self, let pdfData = pdfData else { return }
+            
+            DispatchQueue.main.async {
+                // Save to temp file first (sharing works better with file URL)
+                let tempURL = FileManager.default.temporaryDirectory
+                    .appendingPathComponent("Invoice.pdf")
+                
+                do {
+                    try pdfData.write(to: tempURL)
+                    
+                    // Show native share sheet
+                    let picker = NSSharingServicePicker(items: [tempURL])
+                    picker.show(relativeTo: .zero, of: view, preferredEdge: .minY)
+                    
+                } catch {
+                    print("Failed to write PDF: \(error)")
+                }
+            }
+        }
+    }
+    
     // MARK: - Generate PDF
     private func generatePDF(completion: @escaping (Data?) -> Void) {
         

@@ -14,10 +14,10 @@
             filePath = "Invoice Maker App/Main VC/Main Views/InvoiceView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "734"
-            endingLineNumber = "734"
-            landmarkName = "InvoiceView"
-            landmarkType = "21">
+            startingLineNumber = "771"
+            endingLineNumber = "771"
+            landmarkName = "minusTapped(index:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -30,10 +30,10 @@
             filePath = "Invoice Maker App/Main VC/Main Views/InvoiceView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "721"
-            endingLineNumber = "721"
-            landmarkName = "InvoiceView"
-            landmarkType = "21">
+            startingLineNumber = "758"
+            endingLineNumber = "758"
+            landmarkName = "addNewItem()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -46,8 +46,8 @@
             filePath = "Invoice Maker App/Main VC/Main Views/InvoiceView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "107"
-            endingLineNumber = "107"
+            startingLineNumber = "110"
+            endingLineNumber = "110"
             landmarkName = "init(frame:)"
             landmarkType = "7">
          </BreakpointContent>
