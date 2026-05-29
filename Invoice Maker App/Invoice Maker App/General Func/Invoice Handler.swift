@@ -2,8 +2,6 @@
 //  Invoice Handler.swift
 //  Invoice Maker App
 //
-//  Created by Dev-Mac on 2026-05-16.
-//
 
 import Foundation
 // MARK: - InvoicePDFGenerator.swift
@@ -36,6 +34,9 @@ class InvoicePDFGenerator {
     private let total: String
     private let notes: String
 
+    private let yourCountry: String
+    private let billCountry: String
+    
     // MARK: - Init
     init(
         items: [AmountModel],
@@ -46,9 +47,11 @@ class InvoicePDFGenerator {
         yourName: String,
         yourAddress: String,
         yourCityState: String,
+        yourCountry: String,
         billName: String,
         billAddress: String,
         billCityState: String,
+        billCountry: String,
         subtotal: String,
         tax: String,
         total: String,
@@ -62,9 +65,11 @@ class InvoicePDFGenerator {
         self.yourName          = yourName
         self.yourAddress       = yourAddress
         self.yourCityState     = yourCityState
+        self.yourCountry       = yourCountry
         self.billName          = billName
         self.billAddress       = billAddress
         self.billCityState     = billCityState
+        self.billCountry       = billCountry
         self.subtotal          = subtotal
         self.tax               = tax
         self.total             = total
@@ -219,130 +224,92 @@ class InvoicePDFGenerator {
         return page
     }
     
-    // MARK: - Header Block
+    // MARK: - Header Block    
     private func buildHeaderBlock(width: CGFloat) -> NSView {
-        let container = NSView(frame: CGRect(x: 0, y: 0, width: width, height: 220))
+        // ✅ Increase to 260 to fit 5 rows comfortably
+        let container = NSView(frame: CGRect(x: 0, y: 0, width: width, height: 260))
         container.wantsLayer = true
 
         let titleLabel = makeLabel(text: "INVOICE", font: .systemFont(ofSize: 28, weight: .bold), color: .black, alignment: .right)
-        titleLabel.frame = CGRect(x: width - 160, y: 185, width: 160, height: 35)
+        titleLabel.frame = CGRect(x: width - 160, y: 220, width: 160, height: 35)
         container.addSubview(titleLabel)
 
         let invoiceNoTitle = makeLabel(text: "Invoice#", font: .systemFont(ofSize: 13), color: .darkGray)
-        invoiceNoTitle.frame = CGRect(x: 0, y: 195, width: 100, height: 20)
+        invoiceNoTitle.frame = CGRect(x: 0, y: 228, width: 100, height: 20)
         container.addSubview(invoiceNoTitle)
 
         let invoiceNoVal = makeLabel(text: invoiceNumber.isEmpty ? "-" : invoiceNumber, font: .systemFont(ofSize: 13), color: .black)
-        invoiceNoVal.frame = CGRect(x: 100, y: 195, width: 160, height: 20)
+        invoiceNoVal.frame = CGRect(x: 100, y: 228, width: 160, height: 20)
         container.addSubview(invoiceNoVal)
 
         let invDateTitle = makeLabel(text: "Invoice Date", font: .systemFont(ofSize: 13), color: .darkGray)
-        invDateTitle.frame = CGRect(x: 0, y: 170, width: 100, height: 20)
+        invDateTitle.frame = CGRect(x: 0, y: 203, width: 100, height: 20)
         container.addSubview(invDateTitle)
 
         let invDateVal = makeLabel(text: invoiceDateText, font: .systemFont(ofSize: 13), color: .black)
-        invDateVal.frame = CGRect(x: 100, y: 170, width: 160, height: 20)
+        invDateVal.frame = CGRect(x: 100, y: 203, width: 160, height: 20)
         container.addSubview(invDateVal)
 
         let dueDateTitle = makeLabel(text: "Due Date", font: .systemFont(ofSize: 13), color: .darkGray)
-        dueDateTitle.frame = CGRect(x: 0, y: 145, width: 100, height: 20)
+        dueDateTitle.frame = CGRect(x: 0, y: 178, width: 100, height: 20)
         container.addSubview(dueDateTitle)
 
         let dueDateVal = makeLabel(text: dueDateText, font: .systemFont(ofSize: 13), color: .black)
-        dueDateVal.frame = CGRect(x: 100, y: 145, width: 160, height: 20)
+        dueDateVal.frame = CGRect(x: 100, y: 178, width: 160, height: 20)
         container.addSubview(dueDateVal)
 
+        // ✅ Separator pushed down to match new layout
         let sep = buildSeparator(width: width)
-        sep.frame.origin = CGPoint(x: 0, y: 128)
+        sep.frame.origin = CGPoint(x: 0, y: 160)
         container.addSubview(sep)
 
-        // From
+        // From — 5 rows, each 22pt apart starting from y: 130
         let fromName = makeLabel(text: brandName, font: .systemFont(ofSize: 16, weight: .semibold), color: .black)
-        fromName.frame = CGRect(x: 0, y: 100, width: width / 2 - 10, height: 22)
+        fromName.frame = CGRect(x: 0, y: 130, width: width / 2 - 10, height: 22)
         container.addSubview(fromName)
 
         let fromAddr = makeLabel(text: yourName, font: .systemFont(ofSize: 12), color: .darkGray)
-        fromAddr.frame = CGRect(x: 0, y: 78, width: width / 2 - 10, height: 18)
+        fromAddr.frame = CGRect(x: 0, y: 108, width: width / 2 - 10, height: 18)
         container.addSubview(fromAddr)
 
         let fromCity = makeLabel(text: yourAddress, font: .systemFont(ofSize: 12), color: .darkGray)
-        fromCity.frame = CGRect(x: 0, y: 56, width: width / 2 - 10, height: 18)
+        fromCity.frame = CGRect(x: 0, y: 86, width: width / 2 - 10, height: 18)
         container.addSubview(fromCity)
 
-        let fromCountry = makeLabel(text: yourCityState, font: .systemFont(ofSize: 12), color: .darkGray)
-        fromCountry.frame = CGRect(x: 0, y: 34, width: width / 2 - 10, height: 18)
-        container.addSubview(fromCountry)
+        let fromCityState = makeLabel(text: yourCityState, font: .systemFont(ofSize: 12), color: .darkGray)
+        fromCityState.frame = CGRect(x: 0, y: 64, width: width / 2 - 10, height: 18)
+        container.addSubview(fromCityState)
 
-        // Bill To
+        // ✅ Country now has its own row with enough space
+        let fromCountryLabel = makeLabel(text: yourCountry, font: .systemFont(ofSize: 12), color: .darkGray)
+        fromCountryLabel.frame = CGRect(x: 0, y: 42, width: width / 2 - 10, height: 18)
+        container.addSubview(fromCountryLabel)
+
+        // Bill To — same 5 rows
         let billTitle = makeLabel(text: "Bill To", font: .systemFont(ofSize: 16, weight: .semibold), color: .black)
-        billTitle.frame = CGRect(x: width / 2, y: 100, width: width / 2, height: 22)
+        billTitle.frame = CGRect(x: width / 2, y: 130, width: width / 2, height: 22)
         container.addSubview(billTitle)
 
         let billNameLabel = makeLabel(text: billName, font: .systemFont(ofSize: 12), color: .darkGray)
-        billNameLabel.frame = CGRect(x: width / 2, y: 78, width: width / 2, height: 18)
+        billNameLabel.frame = CGRect(x: width / 2, y: 108, width: width / 2, height: 18)
         container.addSubview(billNameLabel)
 
         let billAddrLabel = makeLabel(text: billAddress, font: .systemFont(ofSize: 12), color: .darkGray)
-        billAddrLabel.frame = CGRect(x: width / 2, y: 56, width: width / 2, height: 18)
+        billAddrLabel.frame = CGRect(x: width / 2, y: 86, width: width / 2, height: 18)
         container.addSubview(billAddrLabel)
 
         let billCityLabel = makeLabel(text: billCityState, font: .systemFont(ofSize: 12), color: .darkGray)
-        billCityLabel.frame = CGRect(x: width / 2, y: 34, width: width / 2, height: 18)
+        billCityLabel.frame = CGRect(x: width / 2, y: 64, width: width / 2, height: 18)
         container.addSubview(billCityLabel)
+
+        // ✅ Country now has its own row with enough space
+        let billCountryLabel = makeLabel(text: billCountry, font: .systemFont(ofSize: 12), color: .darkGray)
+        billCountryLabel.frame = CGRect(x: width / 2, y: 42, width: width / 2, height: 18)
+        container.addSubview(billCountryLabel)
 
         return container
     }
-    
-//    // MARK: - Items Header Row
-//    private func buildItemsHeaderRow(width: CGFloat) -> NSView {
-//        let container = NSView(frame: CGRect(x: 0, y: 0, width: width, height: 25))
-//
-//        let desc = makeLabel(text: "DESCRIPTION", font: .systemFont(ofSize: 11, weight: .semibold), color: .systemBlue)
-//        desc.frame = CGRect(x: 0, y: 0, width: width * 0.46, height: 20)
-//        container.addSubview(desc)
-//
-//        let qty = makeLabel(text: "QTY", font: .systemFont(ofSize: 11, weight: .semibold), color: .systemBlue, alignment: .right)
-//        qty.frame = CGRect(x: width * 0.46, y: 0, width: width * 0.18, height: 20)
-//        container.addSubview(qty)
-//
-//        let rate = makeLabel(text: "RATE", font: .systemFont(ofSize: 11, weight: .semibold), color: .systemBlue, alignment: .right)
-//        rate.frame = CGRect(x: width * 0.64, y: 0, width: width * 0.18, height: 20)
-//        container.addSubview(rate)
-//
-//        let amount = makeLabel(text: "AMOUNT", font: .systemFont(ofSize: 11, weight: .semibold), color: .systemBlue, alignment: .right)
-//        amount.frame = CGRect(x: width * 0.82, y: 0, width: width * 0.18, height: 20)
-//        container.addSubview(amount)
-//
-//        return container
-//    }
-//    
-//    // MARK: - Item Row
-//    private func buildItemRow(item: AmountModel, width: CGFloat) -> NSView {
-//        let container = NSView(frame: CGRect(x: 0, y: 0, width: width, height: 40))
-//
-//        let desc = makeLabel(text: item.qty.isEmpty ? "-" : item.qty, font: .systemFont(ofSize: 12), color: .black)
-//        desc.frame = CGRect(x: 0, y: 10, width: width * 0.46, height: 20)
-//        container.addSubview(desc)
-//
-//        let qty = makeLabel(text: item.qty.isEmpty ? "0" : item.qty, font: .systemFont(ofSize: 12), color: .black, alignment: .right)
-//        qty.frame = CGRect(x: width * 0.46, y: 10, width: width * 0.18, height: 20)
-//        container.addSubview(qty)
-//
-//        let rate = makeLabel(text: item.price.isEmpty ? "0" : item.price, font: .systemFont(ofSize: 12), color: .black, alignment: .right)
-//        rate.frame = CGRect(x: width * 0.64, y: 10, width: width * 0.18, height: 20)
-//        container.addSubview(rate)
-//
-//        let amount = makeLabel(text: item.amount.isEmpty ? "0" : item.amount, font: .systemFont(ofSize: 12), color: .black, alignment: .right)
-//        amount.frame = CGRect(x: width * 0.82, y: 10, width: width * 0.18, height: 20)
-//        container.addSubview(amount)
-//
-//        let sep = buildSeparator(width: width)
-//        sep.frame.origin = CGPoint(x: 0, y: 0)
-//        container.addSubview(sep)
-//
-//        return container
-//    }
-    
+        
     // MARK: - Items Header Row
     private func buildItemsHeaderRow(width: CGFloat) -> NSView {
         let container = NSView(frame: CGRect(x: 0, y: 0, width: width, height: 25))

@@ -2,8 +2,6 @@
 //  Invoice View.swift
 //  Invoice Maker App
 //
-//  Created by Dev-Mac on 2026-04-30.
-//
 
 import Foundation
 import Cocoa
@@ -959,9 +957,11 @@ extension InvoiceView {
             yourName:      yourNameField.stringValue,
             yourAddress:   yourAddressField.stringValue,
             yourCityState: yourCityStateField.stringValue,
+            yourCountry: yourCountryLabel.stringValue,
             billName:      billNameField.stringValue,
             billAddress:   billAddressField.stringValue,
             billCityState: billCityStateField.stringValue,
+            billCountry: billCountryLabel.stringValue,
             subtotal:      subTotalAmout.titleText.stringValue,
             tax:           taxAmout.stringValue,
             total:         totalAmout.titleText.stringValue,
@@ -980,9 +980,11 @@ extension InvoiceView {
             yourName:      yourNameField.stringValue,
             yourAddress:   yourAddressField.stringValue,
             yourCityState: yourCityStateField.stringValue,
+            yourCountry: yourCountryLabel.stringValue,
             billName:      billNameField.stringValue,
             billAddress:   billAddressField.stringValue,
             billCityState: billCityStateField.stringValue,
+            billCountry: billCountryLabel.stringValue,
             subtotal:      subTotalAmout.titleText.stringValue,
             tax:           taxAmout.stringValue,
             total:         totalAmout.titleText.stringValue,

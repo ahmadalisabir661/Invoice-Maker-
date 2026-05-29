@@ -2,8 +2,6 @@
 //  AppDelegate.swift
 //  Invoice Maker App
 //
-//  Created by Dev-Mac on 2026-04-29.
-//
 
 import Cocoa
 

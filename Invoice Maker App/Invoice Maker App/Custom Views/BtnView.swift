@@ -2,8 +2,6 @@
 //  BtnView.swift
 //  Invoice Maker App
 //
-//  Created by Dev-Mac on 2026-05-01.
-//
 
 import Foundation
 import Cocoa
