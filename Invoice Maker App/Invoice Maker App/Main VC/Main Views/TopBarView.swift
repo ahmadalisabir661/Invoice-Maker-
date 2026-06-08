@@ -8,19 +8,17 @@ import Cocoa
 
 class TopBarView: NSView {
 
-    // MARK: - Views
-    var titleLabel       : NSTextField!
-    var draftBadge       = NSView()
-    var draftLabel       : NSTextField!
-    var subtitleLabel    : NSTextField!
-    var autoSavedIcon    = NSImageView()
-    var autoSavedLabel   : NSTextField!
-    var saveButton       = NSButton()
-    var shareButton      = NSButton()
-    var uploadButton     = NSButton()
-    var moreButton       = NSButton()
+    var titleLabel : NSTextField!
+    var draftBadge = NSView()
+    var draftLabel : NSTextField!
+    var subtitleLabel : NSTextField!
+    var autoSavedIcon = NSImageView()
+    var autoSavedLabel : NSTextField!
+    var saveButton = NSButton()
+    var shareButton = NSButton()
+    var uploadButton = NSButton()
+    var moreButton = NSButton()
 
-    // MARK: - Init
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         setup()
@@ -31,7 +29,6 @@ class TopBarView: NSView {
         setup()
     }
 
-    // MARK: - Setup
     func setup() {
         wantsLayer = true
         layer?.backgroundColor = NSColor.clear.cgColor
@@ -43,7 +40,6 @@ class TopBarView: NSView {
         setupRightSection()
     }
 
-    // MARK: - Title Section (left side)
     private func setupTitleSection() {
 
         // "Invoice" label
@@ -221,14 +217,16 @@ class TopBarView: NSView {
 
         switch style {
         case .filled:
-            button.layer?.backgroundColor = NSColor(hex: "2563EB").cgColor
+//            button.layer?.backgroundColor = NSColor(hex: "2563EB").cgColor
+            button.layer?.backgroundColor = NSColor.textBlue.cgColor
         case .outlined:
             button.layer?.backgroundColor = NSColor.clear.cgColor
-            button.layer?.borderColor = NSColor(hex: "2563EB").cgColor
+//            button.layer?.borderColor = NSColor(hex: "2563EB").cgColor
+            button.layer?.borderColor = NSColor.textBlue.cgColor
             button.layer?.borderWidth = 1
         case .purple:
             button.layer?.backgroundColor = NSColor.clear.cgColor
-            button.layer?.borderColor = NSColor(hex: "7C3AED").cgColor
+            button.layer?.borderColor = NSColor.primaryPurple.cgColor
             button.layer?.borderWidth = 1
         }
 
@@ -237,19 +235,5 @@ class TopBarView: NSView {
 
     enum ButtonStyle {
         case filled, outlined, purple
-    }
-}
-
-// MARK: - NSColor hex helper (add once in your project)
-extension NSColor {
-    convenience init(hex: String) {
-        var hexString = hex.trimmingCharacters(in: .whitespacesAndNewlines)
-        hexString = hexString.hasPrefix("#") ? String(hexString.dropFirst()) : hexString
-        var rgb: UInt64 = 0
-        Scanner(string: hexString).scanHexInt64(&rgb)
-        let r = CGFloat((rgb >> 16) & 0xFF) / 255.0
-        let g = CGFloat((rgb >> 08) & 0xFF) / 255.0
-        let b = CGFloat((rgb >> 00) & 0xFF) / 255.0
-        self.init(red: r, green: g, blue: b, alpha: 1.0)
     }
 }

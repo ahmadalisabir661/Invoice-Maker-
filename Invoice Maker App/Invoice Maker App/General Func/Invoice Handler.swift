@@ -226,7 +226,6 @@ class InvoicePDFGenerator {
     
     // MARK: - Header Block    
     private func buildHeaderBlock(width: CGFloat) -> NSView {
-        // ✅ Increase to 260 to fit 5 rows comfortably
         let container = NSView(frame: CGRect(x: 0, y: 0, width: width, height: 260))
         container.wantsLayer = true
 
@@ -258,7 +257,6 @@ class InvoicePDFGenerator {
         dueDateVal.frame = CGRect(x: 100, y: 178, width: 160, height: 20)
         container.addSubview(dueDateVal)
 
-        // ✅ Separator pushed down to match new layout
         let sep = buildSeparator(width: width)
         sep.frame.origin = CGPoint(x: 0, y: 160)
         container.addSubview(sep)
@@ -280,7 +278,6 @@ class InvoicePDFGenerator {
         fromCityState.frame = CGRect(x: 0, y: 64, width: width / 2 - 10, height: 18)
         container.addSubview(fromCityState)
 
-        // ✅ Country now has its own row with enough space
         let fromCountryLabel = makeLabel(text: yourCountry, font: .systemFont(ofSize: 12), color: .darkGray)
         fromCountryLabel.frame = CGRect(x: 0, y: 42, width: width / 2 - 10, height: 18)
         container.addSubview(fromCountryLabel)
@@ -302,7 +299,6 @@ class InvoicePDFGenerator {
         billCityLabel.frame = CGRect(x: width / 2, y: 64, width: width / 2, height: 18)
         container.addSubview(billCityLabel)
 
-        // ✅ Country now has its own row with enough space
         let billCountryLabel = makeLabel(text: billCountry, font: .systemFont(ofSize: 12), color: .darkGray)
         billCountryLabel.frame = CGRect(x: width / 2, y: 42, width: width / 2, height: 18)
         container.addSubview(billCountryLabel)
